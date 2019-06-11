@@ -1,0 +1,19 @@
+#!/bin/bash
+PROGRAM_NAME="B"
+PROGRAM_VERSION="2"
+b(){
+	case "$1" in
+		--version) echo "1" >&2 && exit 0; ;;
+		--help|--usage) echo "b reverses all arguments if program rev is available" >&1 && exit 0; ;;
+		*) ;;
+	esac
+	if [ -x "$(command -v rev)" ] ; then
+		for i in "$@"; do
+			echo "$( echo $i | rev)" >&1
+		done
+	else
+		echo "Error :: Program rev is needed. Install it first" >&2
+		exit 1
+	fi
+}
+b "$@"

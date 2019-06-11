@@ -1,0 +1,137 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+## TODO: If STDIN then try to editar --now --from-stdin but later in version 0.2 ##
+
+PROGRAM_NAME="Editar"
+PROGRAM_VERSION="0.1"
+REDUNDANT_PROGRAM=1
+
+ARGV="$@"
+
+## Notes: program regresa handles this better.
+function test_requirements(){
+	declare -a requirements
+	requirements=(sudo nano)
+	for i in "${requirements[@]}"; do
+		if [[ ! -x "$(command -v $i)" ]] ; then
+			echo "Error :: This program requires $i. Please install it first." >&2
+			exit 1
+		fi
+	done
+}
+editar(){
+	test_requirements
+	case "$1" in
+		--version)
+			echo "$PROGRAM_VERSION"
+		;;
+		--version-verbose)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+		;;
+		--help)
+			editar --version-verbose
+			trys=$(cat <<EOF
+Modo de uso:
+	editar el (codigo (fuente)) de [programa a editar]					Intenta editar el programa utilizando nano (y sudo).
+	editar el (codigo (fuente)) de [programa a editar] con [editor]		Intenta editar el programa utilizando el [editor].
+
+	editar [args]														Es un alias directo de nano.
+
+	editar --version 													Muestra la versión de $PROGRAM_NAME (actualmente $PROGRAM_VERSION).
+	editar --version-verbose 											Muestra "$(editar --version-verbose)".
+	editar --help 														Muestra de nuevo esta extravagante y reduntante inforamción
+																		para tí, $(whoami), que tanto te esfuerzas por mejorar a diario.
+EOF
+)
+			if [[ -x "$(command -v lolcat)" ]] ; then
+				echo "$trys" | lolcat
+			else
+				echo "$trys" >&1
+			fi
+		;;
+		el|la)
+			case "$2" in
+				codigo)
+					case "$3" in
+						fuente)
+							case "$4" in
+								de)
+									case "$6" in
+										con|usando|mediante) editar --run-source "$5" --with-editor "$7"; ;;
+										*) editar --run-source "$5"; ;;
+									esac
+								;;
+								*) editar --help;;
+							esac
+						;;
+						de)
+							case "$5" in
+								con|usando|mediante) editar --run-source "$4" --with-editor "$6"; ;;
+								*) editar --run-source "$4"; ;;
+							esac
+						;;
+						*) ;;
+					esac
+				;;
+				*)
+					editar --run-source "$3"
+				;;
+			esac
+		;;
+		--run-source)
+			trys="$(which $2 2>/dev/null)"
+			if [[ -z "$trys" ]] ; then
+				echo " Error :: $2 is not a program " >&2
+				exit 1
+			fi
+			case "$3" in
+				--with-editor)
+					if [[ -z "$4" ]] ; then
+						echo " E :: Usage: editar el codigo fuente de [programa] con [editor]" >&2
+						exit 1
+					fi
+					if [[ ! -x "$(command -v $4)" ]] ; then
+						echo " E :: $4 is not a valid program " >&2
+						exit 1
+					fi
+					echo "Va el código fuente de $trys en $4."
+					case "$4" in
+						vi|vim|ed|nano|pico|emacs)
+							bash -c "sudo $4 $trys"
+						;;
+						*)
+							bash -c "sudo $4 $trys >/dev/null 2>&1 & disown"
+						;;
+					esac
+				;;
+				*)
+					sudo nano "$trys"
+				;;
+			esac
+		;;
+		--run)
+			if [[ -n "$3" ]] ; then
+				echo " Error :: Only one resource can be edited at a time " >&2
+				exit 1
+			fi
+			nano "$2"
+		;;
+		*)
+			editar --run "$1"
+		;;
+	esac
+}
+editar "$@"

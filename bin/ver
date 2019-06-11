@@ -1,0 +1,62 @@
+#!/bin/bash
+case $- in
+	*i*) exit; ;;
+	*) ;;
+esac
+PROGRAM_NAME="Ver"
+PROGRAM_VERSION="0.1.$(date +%q).0"
+PROGRAM_MVV=1
+ver(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_NAME V$PROGRAM_VERSION" >&1
+		;;
+		--help)
+			ver --version
+			cat <<EOF
+usage:
+	ver el codigo fuente de [bla bla bla]
+	ver mis bolas
+EOF
+		;;
+		el|la)
+			case "$3" in
+				fuente*|codigo*|source*)
+					tryq="${@:4}"
+					case "$4" in
+						de|del)
+							tryq="${@:5}"
+							case "$5" in
+								lo|los)
+									tryq="${@:6}"
+								;;
+								*) ;;
+							esac
+						;;
+						*) ;;
+					esac # to
+					if [[ ! -x "$(command -v codigo)" ]] ; then
+						echo " Error: Program codigo not available. Needed to see source code. " >&2
+						exit 1
+					fi
+					codigo fuente de "$tryq"
+				;;
+				*) ver --help; ;;
+			esac
+		;;
+		mis|my)
+			case "$2" in
+				bins|binarios|bolas|huevos|huevitos|nuts|nueces|testiculos)
+					if [ -d "/home/$USER/bin" ] ; then
+						ls -al "/home/$USER/bin"
+					fi
+				;;
+			esac
+		;;
+		*)
+			less "$@"
+		;;
+	esac
+}
+ver "$@"
+

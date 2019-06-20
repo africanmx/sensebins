@@ -1,0 +1,105 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+PROGRAM_NAME="bash-places"
+PROGRAM_VERSION="0.1"
+## Replace the > in the CONSOLE_THINGY
+## with your own string like ~$ or ~#
+## or whatever need. Leave a space for
+## better esthetics in the console.
+CONSOLE_THINGY="> "
+PLACESDIR="$HOME/lkso.data/$PROGRAM_NAME"
+PLACESFILENAME="placesfile"
+PLACESFILE="$PLACESDIR/$PLACESFILENAME"
+CHANGER_SCRIPT="$HOME/bin/bash-places-dirchanger"
+bash-places(){
+	case "$1" in
+		--version) echo "$PROGRAM_VERSION"; ;;
+		--help)
+			cat <<EOF
+usage:
+	bash-places			Display last 5 places
+	bash-places --save		Saves current directory into the placesfile
+	bash-places --last	Shows last saved place
+	bash-places --pop		Attempts to go to the last directory, and if
+					successful, it removes it from the placesfile
+	bash-places --version 		Shows bash-places version.
+	bash-places --help 			Shows this screen.
+EOF
+	;;
+	--build-forced)
+                if [[ ! -d "$PLACESDIR" ]] ; then
+                        mkdir -p "$PLACESDIR"
+                fi
+		if [[ -f "$PLACESFILE" ]] ; then
+			rm "$PLACESFILE"
+		fi
+		touch "$PLACESFILE"
+	;;
+	--build)
+		if [[ -f "$PLACESFILE" ]] ; then
+			cat <<EOF
+
+A places file exists already. Select the option that you want to perform.
+
+r) Replace the places file with a new one, without backup
+b) Save a backup in $PLACESDIR and build
+c) Cancel
+
+EOF
+			read -p "R= "
+			case "$REPLY" in
+				c) echo "Cancelled"; exit 0; ;;
+				r) ;;
+				b)
+					mv "$PLACESFILE" "$PLACESDIR/backup-asof-$(date +%Y%m%d%H%M%S).txt"
+				;;
+			esac
+		fi
+		bash-places --build-forced
+	;;
+	--save)
+		if [[ ! -f "$PLACESFILE" ]] ; then
+			bash-places --build-forced
+		fi
+		pwd >> "$PLACESFILE"
+		echo "Done"
+	;;
+	--last)
+		if [[ ! -f "$PLACESFILE" ]] ; then
+			bash-places --build-forced
+			bash-places --save
+		fi
+		tryd="$(tail -n 1 "$PLACESFILE")"
+		if [[ ! -d "$tryd" ]] ; then
+			echo "Error: place $tryd is invalid" >&2
+			exit 1
+		fi
+		echo "$tryd"	
+	;;
+	--pop)
+		bash-places --last
+		dd if=/dev/null of=$PLACESFILE bs=1 seek=$(echo $(stat --format=%s $PLACESFILE ) - $( tail -n 1 $PLACESFILE | wc -c ) | bc ) >/dev/null 2>&1
+	;;
+	*)
+		if [[ ! -f "$PLACESFILE" ]] ; then
+			bash-places --build-forced
+			bash-places --save
+		fi
+		tail -n 5 "$PLACESFILE"
+	;;
+	esac
+}
+bash-places "$@"

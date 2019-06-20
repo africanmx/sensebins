@@ -16,6 +16,7 @@ Usage:
 	xolocert --is-present		Returns Yes or No.
 	xolocert --see			Prints the XCRT using the program less.
 	xolocert --lksoid|lksoid	Prints XCRT's LKSO ID.
+	xolocert --uuid			Prints the UUID of the XCRT
 
 	xolocert --version		Print $PROGRAM_NAME version.
 	xolocert --help			Shows this screen
@@ -117,6 +118,7 @@ xolocert(){
 				echo "Error: XCRT not present" >&2
 				exit 1
 			fi
+			xolocert --see | head -n 1 | awk '{print $6}'
 		;;
 		--lksoid|lksoid)
 			if [[ ! -f "$HOME/XCRT" ]] ; then

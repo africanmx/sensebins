@@ -1,0 +1,30 @@
+#!/bin/bash
+PROGRAM_NAME="Am I Root?"
+PROGRAM_VERSION="0.2"
+PROGRAM_HELP=$(cat <<EOF
+$PROGRAM_NAME Version $PROGRAM_VERSION
+This program tells you wether you are running the command being root (returns Yes)
+or not (returns No).
+Usage:
+	amiroot			Returns Yes if you are executing as root, or No otherwise.
+	amiroot --version	Displays the program version.
+	amiroot --help		Shows this screen, again.
+EOF
+)
+amiroot(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_VERSION"
+		;;
+		--help)
+			echo "$PROGRAM_HELP"
+		;;
+		*)
+			case "$EUID" in
+				0) echo "Yes"; ;;
+				*) echo "No" ; ;;
+			esac
+		;;
+	esac
+}
+amiroot "$@"

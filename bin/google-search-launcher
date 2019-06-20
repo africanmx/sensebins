@@ -1,0 +1,80 @@
+#!/bin/bash
+set -e
+PROGRAM_NAME="google-search-launcher"
+PROGRAM_VERSION="0.2"
+PROGRAM_VOY_VOY="Ya vooooooooy!!!!"
+
+function google_search_launcher_c(){
+	text_en="Type your query and hit [enter] to open a new tab with a Google search."
+	text_es="Escribe tu búsqueda y presiona [enter] para buscar con Google."
+	case "$1" in
+		--lang)
+			case "$2" in
+				es) text="$text_es"; ;;
+				*) text="$text_en"; ;;
+			esac
+		;;
+		*) text="$text_en"; ;;
+	esac
+	echo "$text"
+	while read -p "$PROGRAM_NAME:-$ "; do
+		case "$REPLY" in
+			q|quit|bye|exit) echo "Bye" >&2 && exit 0; ;;
+			*)
+				xdg-open "https://google.com/search?q=$REPLY" >/dev/null 2>&1 & disown
+			;;
+		esac
+	done
+}
+
+google_search_launcher(){
+	case "$1" in
+		--version) echo "$PROGRAM_NAME V$PROGRAM_VERSION" >&1; ;;
+		--help)
+			google_search_launcher --version
+			cat <<EOF
+This program is useful to open queries to Google Search from within the Terminal.
+Try linking your program to a useful word like "hey" so you can call it like "hey google, this"
+or "hey google, that".
+You can also search in specific sites using "hey google, search in example.com this"
+or "hey google, search in otherexample.com that".
+
+usage:
+	$PROGRAM_NAME --console
+	$PROGRAM_NAME [google,g,web] [search query]
+	$PROGRAM_NAME [google,g,web] [search in [example.com]] [search query]
+
+Hablamos español:
+	Este programa se puede usar en español también:
+		$PROGRAM_NAME --consola
+		$PROGRAM_NAME [google,g,web] [texto a buscar]
+		$PROGRAM_NAME [google,g,web] [busca en [ejemplo.com]] [texto a buscar]
+
+EOF
+		;;
+		--console) google_search_launcher_c; ;;
+		--consola) google_search_launcher_c --lang es; ;;
+		--search-in)
+			site="$2"
+			tryq="$(echo ${@:3} | tr " " + | tr -dc 'A-Za-z0-9\/\:\-\.\_\~\+\?\!')"
+			xdg-open "https://www.google.com/search?q=site:$site+$tryq" > /dev/null 2>&1 & disown
+		;;
+		g|google|internet|web|google,|g,)
+			case "${@:2:2}" in
+				"busca en"|"buscar en"|"search in") google_search_launcher --search-in "$4" "${@:5}"; exit 0; ;;
+				*) ;;
+			esac
+			### this is nasty on purpose ###
+			query="$2"
+			for i in "${@:3}"; do
+				sanitized="$( echo $i | tr -dc 'a-zA-Z0-9\-\+' )"
+				query="$query+$sanitized"
+			done
+			url="https://www.google.com/search?q=$query"
+			echo "$PROGRAM_VOY_VOY" >&1
+			xdg-open "$url" 2> /dev/null & disown
+		;;
+		*) google_search_launcher --help; ;;
+	esac
+}
+google_search_launcher "$@"

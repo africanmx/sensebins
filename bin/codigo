@@ -1,0 +1,56 @@
+#!/bin/bash
+PROGRAM_NAME="Código"
+PROGRAM_VERSION="0.1.$(date +%s).0"
+PROGRAM_VERSION_ULTRAVARIABLE="Yes, Of Course"
+MVV=1
+###### MVV PROOF ######
+if [[ -x "$(command -v mvv)" ]] ; then
+	echo "$(mvv)" >&1
+fi
+codigo(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_VERSION" >&1
+		;;
+		--version-verbose)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION" >&1
+		;;
+		--help)
+			codigo --version-verbose
+			cat <<EOF
+description:
+	codigo shows the source code of an executable binary from the current path.
+		Warning: binary files would be displayed using the cat program.
+usage:
+	codigo de [program names]
+   or
+	codigo fuente de [program names]
+EOF
+		;;
+		--run)
+			for i in "${@:2}"; do
+				tryp="$(which $i 2>/dev/null)"
+				if [[ -n "$tryp" ]] ; then
+					echo "--- Program $i ---"
+					cat "$tryp"
+					echo "--- End of program $i ---"
+				else
+					echo " E: Program $i not available"
+				fi
+			done
+		;;
+		de)
+			codigo --run "${@:2}"
+		;;
+		fuente)
+			case "$2" in
+				de)
+					codigo --run "${@:3}"
+				;;
+				*) codigo --help; ;;
+			esac
+		;;
+		*) codigo --help;;
+	esac
+}
+codigo "$@"

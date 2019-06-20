@@ -1,0 +1,195 @@
+#!/bin/bash
+set -e
+PROGRAM_NAME="Como"
+PROGRAM_VERSION="0.3"
+REQUIREMENT_ERROR=2
+WORKING_DIR="$HOME/lkso.data/$PROGRAM_NAME"
+MOOD_FILE="moodfile"
+BAD_MOOD_FILE="badmoodfile"
+function verificar_requerimientos(){
+	required_programs=$(cat <<EOF
+lolcat
+whoami
+sleep
+limb
+groups
+EOF
+)
+	while read -r program; do
+		if [[ ! -x "$(command -v $program)" ]] ; then
+			echo " E: $program not available " >&2
+			exit $REQUIREMENT_ERROR
+		fi
+	done <<< "$required_programs"
+}
+version(){
+	echo "$PROGRAM_VERSION"
+}
+help(){
+	cat <<EOF
+
+    ,o888888o.        ,o888888o.           ,8.       ,8.           ,o888888o.     
+   8888     \`88.   . 8888     \`88.        ,888.     ,888.       . 8888     \`88.   
+,8 8888       \`8. ,8 8888       \`8b      .\`8888.   .\`8888.     ,8 8888       \`8b  
+88 8888           88 8888        \`8b    ,8.\`8888. ,8.\`8888.    88 8888        \`8b 
+88 8888           88 8888         88   ,8'8.\`8888,8^8.\`8888.   88 8888         88 
+88 8888           88 8888         88  ,8' \`8.\`8888' \`8.\`8888.  88 8888         88 
+88 8888           88 8888        ,8P ,8'   \`8.\`88'   \`8.\`8888. 88 8888        ,8P 
+\`8 8888       .8' \`8 8888       ,8P ,8'     \`8.\`'     \`8.\`8888.\`8 8888       ,8P  
+   8888     ,88'   \` 8888     ,88' ,8'       \`8        \`8.\`8888.\` 8888     ,88'   
+    \`8888888P'        \`8888888P'  ,8'         \`         \`8.\`8888.  \`8888888P'  
+
+Version $PROGRAM_VERSION
+Usage:
+	como estas?			Enters into a loop of self questioning.
+	como has estado?		Tells you how have I been.
+	como estaba ya no		Undo the last saved mood prompting for confirmation.
+	como estaba ya no --force	Undo the last saved mood without prompting.
+	como has estado [xxxx]?		Tells you how have [xxxx] been.
+	como --version			Tells you $PROGRAM_NAME version which is $PROGRAM_VERSION.
+	como --help			Shows this screen
+EOF
+}
+aprintf(){
+	echo "$@" | lolcat
+}
+function save_mood(){
+	case "$1" in
+		--bad)
+			if [[ ! -f "$WORKING_DIR/$BAD_MOOD_FILE" ]] ; then
+				if [[ ! -d "$WORKING_DIR" ]] ; then
+					mkdir -p "$WORKING_DIR"
+				fi
+				touch "$WORKING_DIR/$BAD_MOOD_FILE"
+			fi
+			echo "$(date)	$2" >> "$WORKING_DIR/$BAD_MOOD_FILE"
+		;;
+		*)
+			if [[ ! -f "$WORKING_DIR/$MOOD_FILE" ]] ; then
+				if [[ ! -d "$WORKING_DIR" ]] ; then
+					mkdir -p "$WORKING_DIR"
+				fi
+				touch "$WORKING_DIR/$MOOD_FILE"
+
+			fi
+			echo "$(date)	$1" >> "$WORKING_DIR/$MOOD_FILE"
+		;;
+	esac
+}
+como_loop(){
+	while true; do
+		read -p "Bien. ¿Y tú? R= "
+		case "$REPLY" in
+			sal|salir|quit|exit|bye) echo Bye; exit 0; ;;
+			mal|de*|valiendo*)
+				clear
+				limb --short
+				sleep 1
+				aprintf "Mira, $(whoami)."
+				sleep 0.2456
+				aprintf "La vida es para vivirla mejor"
+				sleep 0.2185
+				aprintf "Y no para estar mal ok?"
+				sleep 0.0258
+				aprintf "Ok"
+				sleep 0.3212
+				aprintf "Y pues nada, es eso solamente"
+				save_mood "$REPLY"
+				save_mood --bad y
+				aprintf "Ya guardamos el mood, igual."
+			;;
+			*)
+				save_mood "$REPLY"
+				save_mood --bad n
+				aprintf "Ok, de lujo. Mood guardado"
+			;;
+		esac
+	done
+}
+como(){
+
+	case "$1" in
+		--version) version;;
+		--help|--ayuda) help;;
+		*) ;;
+	esac
+
+	verificar_requerimientos
+
+	case "$1" in
+		estas?) como_loop;;
+		*) ;;
+	esac
+	case "${@:1:2}" in
+		"has estado"*)
+			if [[ -n "$3" ]] ; then
+				user="$( echo $3 | tr -d '?' )"
+				tryid="$(groups "$user" 2>/dev/null & disown)"
+				if [[ ! -n "$tryid" ]] ; then
+					echo " E: User $user is invalid " >&2
+					exit 1
+				fi
+				tryp="/home/$user/lkso.data/$PROGRAM_NAME/$MOOD_FILE"
+				if [[ ! -f "$tryp" ]] ; then
+					echo " E: The mood file for $user is unreachable, invalid or not present " >&2
+					exit 1
+				fi
+				trys="$(tail -n 1 "$tryp" | tr "	" " " | cut -d " " -f 7-1000)"
+			else
+				user="$(whoami)"
+				if [[ ! -f "$WORKING_DIR/$MOOD_FILE" ]] ; then
+					echo "Warning: No hay moods guardamos"
+					como_loop 
+				fi
+				trys="$(tail -n 1 "$WORKING_DIR/$MOOD_FILE" | tr "	" " " | cut -d " " -f 7-1000)"
+			fi
+			aprintf "$user ha estado $trys"
+			sleep 0.4506
+			aprintf "Espero que tú igual o mejor"
+		;;
+		"estaba ya"*)
+			case "$3" in
+				no)
+					case "$4" in
+						--force)
+							tryp="$WORKING_DIR/$MOOD_FILE"
+							if [[ ! -f "$tryp" ]] ; then
+								echo " E : Mood file is not present " >&2
+								echo "     Create it by typing 'como estas?' and answering" >&2
+								exit 1
+							fi
+							lastb="$(tail -1 $n $WORKING_DIR/$MOOD_FILE | tr "	" " " | cut -d " " -f 8-1000)"
+							head -n -1 "$WORKING_DIR/$MOOD_FILE" > "$WORKING_DIR/tempfile"
+							mv "$WORKING_DIR/tempfile" "$WORKING_DIR/$MOOD_FILE"
+							echo "Tu mood de \"$lastb\" fue eliminado!"
+						;;
+						*)
+							read -p "Seguro? Sure? yes|si / no R= "
+							case "$REPLY" in
+								y|yes|s|si)
+									como estaba ya no --force
+								;;
+								*)
+									echo "Cancelled"
+									exit 0
+								;;
+							esac
+						;;
+					esac
+				;;
+				*) como --help;;
+			esac
+		;;
+		"tienes la"*)
+			clear
+			aprintf "Creo que así. Aguanta..."
+			sleep 1
+			limb --normal
+			sleep 3
+			clear
+			aprintf "No sé si a eso te referías"
+		;;
+		*) help;;
+	esac
+}
+como "$@"

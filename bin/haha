@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+###############################################
+### El programa jaja viene sin garantia ok? ###
+### Nada de que "as is" ni nada             ###
+###                                         ###
+### Yo vine aqui a hacer un chingo de dinero ##
+### Nada de que `misare` ni `misrae` ni      ##
+### `misarro` ni nada                        ##
+###                                          ##
+### This program comes and goes "as is" and  ##
+### always without warranty                  ##
+###                                         ###
+##  If your computer breaks "alv" or in     ###
+##  a normal way then the responsibility is ###
+##  completely of whom executes the jaja    ###
+##  program                                 ###
+##                                          ###
+###                                         ###
+### copyright and copyleft "as is" without  ###
+### problem                                 ###
+###                                         ###
+### all problems can be solved almost       ###
+### but if not then at least try to solve   ###
+### your most important problems first      ###
+###                                         ###
+### from the core to the outer layers,      ###
+### always.                                 ###
+### that is the way to go.                  ###
+###                       or not.           ###
+###############################################
+set -e
+PROGRAM_NAME="Jaja"
+PROGRAM_VERSION="0.2"
+function dale(){
+	if [[ -x "$(command -v lolcat)" ]] ; then
+		echo "$@" | lolcat
+	else
+		echo "$@" >&1
+	fi
+}
+function jaja_version(){
+	echo "$PROGRAM_NAME V$PROGRAM_VERSION" >&1
+}
+jaja(){
+	case "$1" in
+		--version) dale $(jaja_version);;
+		--help)
+			dale $(jaja_version)
+			THE_HELP=$( cat <<EOF
+usage:
+	jaja			Laugh
+	jaja --forever		Laugh forever
+	jaja --help		Shows this screen
+	jaja --version		Shows program version
+EOF
+)
+			if [ -x "$(command -v lolcat)" ] ; then
+				echo "$THE_HELP" | lolcat
+			else
+				echo "$THE_HELP" >&1
+			fi
+		;;
+		--forever)
+			if [[ -x "$(command -v lolcat)" && "$2" == "--lolcat" ]] ; then
+				while true; do
+					cat /dev/urandom | tr -dc 'HAJEFS' | fold -w 32 | head -n 1 | lolcat
+					sleep 0.2468
+				done
+			else
+				while true; do
+					printf "hahhahhahahaaahhaa "
+					sleep 0.2468
+				done
+			fi
+		;;
+		*)
+	## The following lines demonstrates that the creators of this ##
+	## probably were not thinking so much about anything or not ####
+	randi="$(cat /dev/urandom | tr -dc 'p-u' | fold -w 1 | head -n 1)"
+	case "$randi" in
+		p) dale "jajjjjjjjjss"; ;;
+		q) dale "hoooohhhahahoho"; ;;
+		r) dale "pppfffjjjaj"; ;;
+		s) dale "tssssjajjaj"; ;;
+		t) dale "hahauhuuhuhuahahu"; ;;
+		u) dale "hehehohohhe"; ;;
+		*) dale "HAAA <wey esto no tuvo que haber pasado>"; ;;
+	esac
+		;;
+	esac
+}
+jaja "$@"

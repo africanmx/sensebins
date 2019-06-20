@@ -1,0 +1,320 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+
+PROGRAM_NAME="Di"
+PROGRAM_VERSION="0.3"
+
+MEDKLOGIN=1
+MICDIR="$HOME/lkso.data/di.d"
+MICFILE=".kmicko.txt"
+
+function xolocertini(){
+	if [ -x "$(command -v xolocert)" ] ; then
+		tryf="$(xolocert lksoid)"
+		if [[ ! -z "$tryf" ]] ; then
+			if [[ "${#tryf}" -eq 64 ]] ; then
+				MEDKLOGIN="$tryf"
+			fi
+		fi
+	fi
+}
+
+xolocertini
+
+function check_micfiles(){
+	if [ ! -f "$MICDIR/$MICFILE" ] ; then
+		echo " Error :: mic file not present " >&2
+		case "$1" in
+			--prompt)
+				read -p "Would you like to create it now? y/n "
+				case "$REPLY" in
+					y|yes)
+						build_micdir --force
+					;;
+					*)
+						echo "Exited then." >&2
+						exit 0
+					;;
+				esac
+			;;
+			*)
+				echo "but you can create it with di --build " >&2
+				exit 1
+			;;
+		esac
+	fi
+}
+
+function build_micdir(){
+	if [[ -f "$MICDIR/$MICFILE" ]] ; then
+		case "$1" in
+			--force)
+				remove_micdir --force
+			;;
+			*)
+				echo " Error :: mic-file is present " >&2
+				return 1
+			;;
+		esac
+	fi
+	mkdir -p "$MICDIR"
+	touch "$MICDIR/$MICFILE"
+	echo "MKL $MEDKLOGIN " >> "$MICDIR/$MICFILE"
+	echo "LKSO-DI [$(whoami)] [$(date)] [START]" >> "$MICDIR/$MICFILE"
+	echo "Done " >&2
+	return 0
+}
+
+function remove_micdir(){
+	if [[ ! -d "$MICDIR" ]] ; then
+		return 0
+	fi
+	case "$1" in
+		--force)
+			rm -rf "$MICDIR"
+			return 0
+		;;
+		*) ;;
+	esac
+	read -p "Sure ? y/n " axa
+	case "$axa" in
+		y|yes|si)
+			rm -rf "$MICDIR"
+			echo "Done" >&2
+			return 0
+		;;
+		*)
+			echo "Ok, no" >&2
+			return 0
+		;;
+	esac
+}
+function say(){
+	if [[ ! -f "$MICDIR/$MICFILE" ]] ; then
+		build_micdir
+	fi
+	case "$1" in
+		que) allst="${@:2}"; ;;
+		*) allst="$@";;
+	esac
+	echo "$(whoami) [$(date)] :: $allst " >> "$MICDIR/$MICFILE"
+	echo " $allst fue dicho." >&2
+	return 0
+}
+function see_mic(){
+	MICFILE="$MICDIR/$MICFILE"
+	if [ ! -x "$(command -v less)" ] ; then
+		echo " Error :: program less is needed " >&2
+		return 1 
+	fi
+	if [ ! -f "$MICFILE" ] ; then
+		echo " Error :: mic file not present " >&2
+		echo "          but you can create it with di --build " >&2
+		return 1
+	fi
+	less "$MICFILE"
+	return 0
+}
+function watch_mic(){
+	MICFILE="$MICDIR/$MICFILE"
+	if [ ! -x "$(command -v tail)" ] ; then
+		echo " Error :: program tail is needed " >&2
+		return 1
+	fi
+	if [ ! -f "$MICFILE" ] ; then
+		echo " Error :: mic file not present " >&2
+		echo "          but you can create it with di --build " >&2
+		return 1
+	fi
+	tail -F "$MICFILE"
+	return 0
+}
+
+function undo_mic(){
+	check_micfiles
+	case "$1" in
+		-n)
+			maxl="$(wc -l $MICDIR/$MICFILE | awk '{print $1}')"
+			if [[ "$2" -lt 1 || "$2" -gt "$maxl" ]] ; then
+				echo " E: Must be between 1 and $maxl " >&2
+				exit 1
+			fi
+			n="$2"
+		;;
+		*)
+			n=1
+		;;
+	esac
+	lastb="$(tail -n $n $MICDIR/$MICFILE)"
+	head -n -$n "$MICDIR/$MICFILE" > "$MICDIR/tempfile"
+	mv "$MICDIR/tempfile" "$MICDIR/$MICFILE"
+	echo "$lastb"
+}
+
+function export_mic(){
+	export_dir="$1"
+	if [[ -z "$1" ]] ; then
+		cat <<EOF
+Usage:
+	di --export [directory]
+EOF
+		exit 1
+	fi
+	echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+	echo "Exporter"
+	echo "Your microphone will be exported to: $export_dir"
+	if [[ ! -d "$export_dir" ]] ; then
+		echo "But path does not exists, aparently."
+		read -p "Would you like to create it? y/n"
+		case "$REPLY" in
+			y|yes|si)
+				mkdir -p "$export_dir"
+				if [[ ! -d "$export_dir" ]] ; then
+					echo "There was an error and it could not be created" >&2
+					exit 1
+				fi
+			;;
+			*)
+				echo "Ok. Cancelled then."
+				exit 0
+			;;
+		esac
+	fi
+	filename="microphone-as-of-$(date +%Y%m%dT%H%M%S).txt"
+	touch "$export_dir/$filename"
+	cat "$MICDIR/$MICFILE" >> "$export_dir/$filename"
+	echo "Done"
+	echo "If you'd like to clear your microphone run di --build --force"
+}
+di(){
+	case $- in
+		*i*) exit 0;;
+		*) ;;
+	esac
+	case "$1" in
+		--version)
+			echo " $PROGRAM_NAME V. $PROGRAM_VERSION "
+			exit 0
+		;;
+		--help)
+			cat <<EOF
+LKSO'S $PROGRAM_NAME V.$PROGRAM_VERSION
+
+     ..:::::::..
+    //////\\\\\\\
+    |||||||||||||
+    |||||||||||||
+    |||||||||||||
+HH  |||||||||||||   HH
+HH==================HH
+HH==================HH
+HH  #############   HH
+HH  #############   HH
+HH   ###########    HH
+HH    #########     HH
+HH     #######      HH
+HH      #####       HH
+HH        ()        HH
+\\         ()       //
+  \\       ()     //
+    \\      ()  //
+      \\     (//
+        \\  //)(
+      ____\/___()
+  ,#################....
+ #####################  \`\`\`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Usage:
+	di --help
+		Shows this screen
+	di --version
+		Shows $PROGRAM_NAME version
+
+	di [whatever you like]
+		Stores your talking in the microphone file.
+	di --siempre
+		Runs microphone forever ;)
+	di --undo
+		Erases the last think you said printing it out for the
+		last time.
+		So you can apply it to your strong languages.
+	di --watch
+		Observes the microphone file, using the program tail.
+	di --see
+		Opens the microphone file for you to see using less.
+	di --export [export dir]
+		Attempts to export your mic to the export dir
+	di --build
+		Creates the directory and the microphone file.
+		If it exists already, you need to invoke it like:
+			di --build --force
+		or to call di --remove first.
+	di --remove
+		Prompts for removal of the current microphone file and
+		its directories. If you would like not to be prompted, then
+		invoke it like:
+			di --remove --force
+		If there is no directories or microphone file, then this
+		invocation will be useless.
+EOF
+		;;
+		--watch) watch_mic; ;;
+		--see) see_mic;;
+		--build)
+			case "$2" in
+				--force) build_micdir --force; ;;
+				*) build_micdir; ;;
+			esac
+		;;
+		--remove)
+			case "$2" in
+				--force) remove_micdir --force; ;;
+				*) remove_micdir; ;;
+			esac
+		;;
+		--siempre)
+			di_siempre
+		;;
+		--export)
+			export_mic "$2"
+		;;
+		--undo)
+			undo_mic -n 1
+		;;
+		*) say "$@"; ;;
+	esac
+	exit 0
+}
+function di_siempre(){
+	[[ -x "$(command -v clear)" ]] && clear
+	echo " [ $(whoami) LIVE MIC ] \
+Say whatever you like.
+(quit exits program)
+	" >&2
+	while true; do
+		read -p "º\$ "
+		case "$REPLY" in
+			--quit|quit|q|sal|exit|salir|salga|bye) echo "Bai!" >&2 && exit 0; ;;
+			clear)
+				clear
+			;;
+			*)
+				say "$REPLY"
+			;;
+		esac
+	done
+}
+di "$@"

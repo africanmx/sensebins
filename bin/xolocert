@@ -1,0 +1,138 @@
+#!/bin/bash
+PROGRAM_NAME="Xolocert"
+PROGRAM_VERSION="0.2.0"
+PROGRAM_COMMAND="xolocert"
+XCRT_LINES=64
+XCRT_LINE_LENGTH=64
+PROGRAM_HELP=$(cat <<EOF
+Xolocert generates quick pseudo-random micro certs.
+It consists of $XCRT_LINES lines of $XCRT_LINE_LENGTH printable
+characters each. The last two lines are ascii-safe.
+XCRT pseudo-random content is wrapped by a SOC and EOC line.
+Usage:
+	xolocert --create		Attempts to create a XCRT in user's home directory.
+	xolocert --remove		Attempts to remove the XCRT from user's home directory.
+	xolocert --export [path]	Attempts to export XCRT to [path].
+	xolocert --is-present		Returns Yes or No.
+	xolocert --see			Prints the XCRT using the program less.
+	xolocert --lksoid|lksoid	Prints XCRT's LKSO ID.
+
+	xolocert --version		Print $PROGRAM_NAME version.
+	xolocert --help			Shows this screen
+EOF
+)
+xolocert(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_VERSION"
+		;;
+		--help)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+			echo "$PROGRAM_HELP"
+		;;
+		--is-present)
+			if [[ -f "$HOME/XCRT" ]] ; then
+				echo "Yes"
+			else
+				echo "No"
+			fi
+		;;
+		--create)
+			if [[ -f "$HOME/XCRT" ]] ; then
+				echo "Error. File $HOME/XCRT is present" >&2
+				exit 1
+			fi
+			UUID="$(cat /proc/sys/kernel/random/uuid)"
+			GRAPH_LINES="$(( $XCRT_LINES-2 ))"
+			touch "$HOME/XCRT"
+			echo "### $PROGRAM_NAME $PROGRAM_VERSION - XCRT $UUID ###" >> "$HOME/XCRT"
+			echo "SOC" >> "$HOME/XCRT"
+			cat /dev/urandom | tr -dc [:graph:] | fold -w $XCRT_LINE_LENGTH | head -n $GRAPH_LINES >> "$HOME/XCRT"
+			cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w $XCRT_LINE_LENGTH | head -n 2 >> "$HOME/XCRT"
+			echo "EOC" >> "$HOME/XCRT"
+			echo "### $PROGRAM_NAME V $PROGRAM_VERSION - XCRT $UUID [timestamp $(date +%Y%m%d%H%M%S%N)] ###" >> "$HOME/XCRT"
+			echo "Done"
+		;;
+		--remove)
+			if [[ ! -f "$HOME/XCRT" ]] ; then
+				echo "Error: XCRT not present" >&2
+				xolocert --help
+				exit 1
+			fi
+			case "$2" in
+				--force) ;;
+				*)
+					read -p "Sure? y/n "
+					case "$REPLY" in
+						n|no|c|cancel|nop)
+							echo "Cancelled"
+							exit 0
+						;;
+					esac
+				;;
+			esac
+			rm "$HOME/XCRT"
+		;;
+		--export)
+			if [[ ! -f "$HOME/XCRT" ]] ; then
+				echo "Error: XCRT not present" >&2
+				xolocert --help
+				exit 1
+			fi
+			if [[ -z "$2" ]] ; then
+				echo "Error: Must specify target" >&2
+				xolocert --help
+				exit 1
+			fi
+			if [[ ! -d "$2" ]] ; then
+				echo "Place $2 non existent apparently"
+				read -p "Create now? y/n "
+				case "$REPLY" in
+					y|yes)
+						mkdir -p "$2"
+					;;
+					*)
+						echo "Cancelled"
+						exit 0
+					;;
+				esac
+			fi
+			cp "$HOME/XCRT" "$2/XCRT-$(date +%Y%m%d%H%M%S).txt"
+			echo "Done"
+		;;
+		--see)
+			if [[ ! -f "$HOME/XCRT" ]] ; then
+				echo "Error: XCRT not present" >&2
+				xolocert --help
+				exit 1
+			fi
+			if [[ ! -x "$(command -v less)" ]] ; then
+				echo "Sorry, program less not available for that" >&2
+				exit 1
+			fi
+			less "$HOME/XCRT"
+		;;
+		--uuid|uuid|id)
+			if [[ ! -f "$HOME/XCRT" ]] ; then
+				echo "Error: XCRT not present" >&2
+				exit 1
+			fi
+		;;
+		--lksoid|lksoid)
+			if [[ ! -f "$HOME/XCRT" ]] ; then
+				echo "Error: XCRT not present" >&2
+				exit 1
+			fi
+			trys="$(tail -n 4 "$HOME/XCRT" | head -n 1 | fold -w $XCRT_LINE_LENGTH | tr -dc 'A-Za-z0-9')"
+			if [[ "${#trys}" -ne $XCRT_LINE_LENGTH ]] ; then
+				echo "Error: XCRT appears to be invalid" >&2
+				exit 1
+			fi
+			echo "$trys"
+		;;
+		*)
+			xolocert --help
+		;;
+	esac
+}
+xolocert "$@"

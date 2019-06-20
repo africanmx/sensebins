@@ -1,0 +1,70 @@
+#!/bin/bash
+#######################################################################################################################
+### #### quien
+######## ESTE PROGRAMA VIENE "COMO ES" Y SIN GARANTIAS
+######## SU USO ES RESPONSABILIDAD DE QUIEN LO IMPLEMENTA
+########
+######## @author lu1s <luis at african dot mx>
+######## @lksoid $(xolocert lksoid)
+######## @tags <helpers, shortcuts, bash, natural language, spanish>
+#######################################################################################################################
+set -e
+PROGRAM_NAME="quien"
+PROGRAM_VERSION="0.1"
+PROGRAM_AUTHOR="lu1s"
+PROGRAM_DESCRIPTION="answers common environment questions for spanish speaking users"
+quien(){
+	case "$1" in
+		--help)
+			echo " \
+				$PROGRAM_NAME V.$PROGRAM_VERSION
+
+				Usage:
+					quien soy				(alias of whoami)
+					quien es [[user name]]			(alias of id [[username]])
+					quien [posee|tiene] [[file name]]	(who is owner of files and dirs)
+					quien --version				(program version)
+					quien --help				(this screen)
+			"
+			exit 0
+		;;
+		--version)
+			echo "$PROGRAM_NAME V.$PROGRAM_VERSION" >&2
+			exit 0
+		;;
+		soy)
+			[[ -x "$(command -v whoami)" ]] && whoami
+			exit 0
+		;;
+		es)
+			case "$2" in
+				chente)
+					echo "Chente es el CTO de la computadora" >&1
+					exit 1
+				;;
+				sushi)
+					echo "Sushi es la CEO de la computadora" >&1
+					exit 1
+				;;
+				*) ;;
+			esac
+			for trys in "${@:2}"; do
+				echo "_ $trys _" >&2
+				[[ -x "$(command -v id)" ]] && id "$trys"
+			done
+			exit 0
+		;;
+		posee|tiene)
+			for trys in "${@:2}"; do
+				cleans="$( echo $trys | tr -d '?,')"
+				if [[ -d "$cleans" || -f "$cleans" ]] ; then
+					echo "_ $cleans _" >&1
+					ls -l "$cleans" | awk '{print $9,$3}'
+				fi
+			done
+			exit 0
+		;;
+		*) quien --help; ;;
+	esac
+}
+quien "$@"

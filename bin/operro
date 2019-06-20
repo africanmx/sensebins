@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+operro(){
+	if [[ -p /dev/stdin ]]; then
+		readarray input
+	fi
+	args="$@"
+	if [[ ! -z "$input" ]]; then
+		args="$input$args"
+	fi
+	echo "$args"
+}
+operro "$@"

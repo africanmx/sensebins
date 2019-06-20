@@ -1,0 +1,38 @@
+#!/bin/bash
+################################################################
+PROGRAM_NAME="Tmux Auto Rename Sessions"
+PROGRAM_VERSION="0.2.0"
+PROGRAM_HELP=$(cat <<EOF
+Usage:
+	tmuxautorenamesessions
+	tmuxautorenamesessions --help
+	tmuxautorenamesessions --version
+EOF
+)
+tmuxautorenamesessions(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+		;;
+		--version-real)
+			echo "$PROGRAM_VERSION"
+		;;
+		--help)
+			tmuxautorenamesessions --version
+			echo "$PROGRAM_HELP"
+		;;
+		*)
+			mvv
+			if [[ ! -x "$(command -v tmux)" ]] ; then
+				exit 0
+			fi
+			sessions="$(tmux ls | awk '{print $1}' | tr -d ':')"
+			while read -r line; do
+				name="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+				tmux rename-session -t "$line" "$name"
+			done <<< "$sessions"
+		;;
+	esac
+}
+tmuxautorenamesessions "$@"
+

@@ -14,7 +14,9 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="Crear"
-PROGRAM_VERSION="0.2.3"
+PROGRAM_VERSION="0.2.4"
+### Changeset
+### # 0.2.3 to 0.2.4 added clear to console, added separated run function, added program title and version to help
 PROGRAM_REQUIREMENTS=$(cat <<EOF
 mkdir
 touch
@@ -41,7 +43,7 @@ PROGRAM_LICENSE=$(cat <<EOF
 EOF
 )
 PROGRAM_HELP=$(cat <<EOF
-Querido $(whoami),
+Querid@ $(whoami),
 
 "Crear" es un programa que te crea programas para que los edites directamente.
 El lenguaje es Bash y es compatible con cualquier versión de Linux y Unix.
@@ -54,6 +56,7 @@ Recuerda no incluir los corchetes en la ejecución del comando.
 Saludos cordiales,
 
 -El equipo "i", creador del programa "crear".
+
 EOF
 )
 
@@ -96,6 +99,10 @@ $1(){
 		--version) echo "\$PROGRAM_VERSION"; ;;
 		--help)
 			cat <<EOF
+
+\$PROGRAM_NAME
+   Version \$PROGRAM_VERSION
+
 usage:
 	$1					Replace this with your stuff
 	$1 --version 		Shows $1 version.
@@ -112,15 +119,25 @@ EOF
 					echo "Bye"
 					exit 0
 				;;
+				clear|cls)
+					clear
+				;;
 				*)
-					echo "This is what you wrote: "
-					echo "\$REPLY"
+					run "\$REPLY"
 				;;
 			esac
 		done
 	;;
-	*) ;;
+	*)
+		run "\$@"
+	;;
 	esac
+}
+run(){
+	### This is your program's main function. Replace this code
+	### with the logic of your program.
+	echo "Program \$PROGRAM_NAME was out of the oven at $(date) "
+	echo "Still unimplemented"
 }
 $1 "\$@"
 EOF

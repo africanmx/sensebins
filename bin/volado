@@ -1,0 +1,72 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+PROGRAM_NAME="Volado"
+PROGRAM_VERSION="0.1"
+## Replace the > in the CONSOLE_THINGY
+## with your own string like ~$ or ~#
+## or whatever need. Leave a space for
+## better esthetics in the console.
+CONSOLE_THINGY="> "
+dado(){
+	case "$1" in
+		--version) echo "$PROGRAM_VERSION"; ;;
+		--help)
+			cat <<EOF
+
+V o l a d o  (a.k.a Elqueso Flipacoin)
+     Version $PROGRAM_VERSION
+
+usage:
+	dado			Tira la moneda (flips a coin).
+	dado --console		Enters into console mode so you can press enter to throw your moneda.
+	dado --version 		Shows dado version.
+	dado --help 		Shows this screen.
+EOF
+	;;
+	--console)
+		while [[ true ]] ; do
+			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
+			case "$REPLY" in
+				q|quit|exit|sal|salir)
+					echo "Bye"
+					exit 0
+				;;
+				clear|cls)
+					clear
+				;;
+				*)
+					run "$REPLY"
+				;;
+			esac
+		done
+	;;
+	*)
+		run "$@"
+	;;
+	esac
+}
+roll(){
+	## There should be better ways ##
+	if [[ "$(( $RANDOM % 2 ))" -eq 0 ]] ; then
+		echo "Àguila"
+	else
+		echo "Sol"
+	fi
+}
+run(){
+	roll
+}
+dado "$@"

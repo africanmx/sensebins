@@ -1,0 +1,117 @@
+#!/bin/bash
+## warning: dlv program ##
+set -e
+PROGRAM_NAME="Is"
+## MVV ##
+PROGRAM_VERSION="0.2.$(date +%q).0"
+is_version(){
+	echo "$PROGRAM_NAME V.$PROGRAM_VERSION"
+}
+is(){
+	case "$1" in
+		--version) is_version;;
+		--help)
+			is --version
+			cat <<EOF
+
+****    |******| 
+*  *    |* ****|
+*  *     *** \
+*  *    ***** |
+****    ******
+
+usage:
+	is program [program] available?		Self-describing command.
+	is xolocert ok?				Tells you weather xolocert is ok or not.
+	is tmux running?			Tells you if tmux is running or not.
+	is the sky blue?			Tells you "Vete a dormir!" which means "Go to sleep!" in spanish.
+
+	is *						Asks Google if you have the google-search-launcher program installed
+
+	is --version				Tells you $PROGRAM_NAME's current version (which is $PROGRAM_VERSION, currently).
+	is --help				Shows this valuable information, again.
+EOF
+		;;
+		tmux)
+			case "$2" in
+				running|running?)
+					if [[ ! -x "$(command -v tmux)" ]] ; then
+						echo "Tmux is not even installed!" >&2
+						exit 1
+					fi
+					if [[ -n "$(pgrep tmux)"  ]] ; then
+						echo "Yes"
+					else
+						echo "No"
+					fi
+				;;
+				*) is --help; ;;
+			esac
+		;;
+		xolocert)
+			case "$2" in
+				ok|ok?)
+					if [[ ! -x "$(command -v xolocert)" ]] ; then
+						echo "Senior@ $(whoami), su xolocert is not there" >&2
+						exit 1
+					fi
+					xolocert --are-you-ok
+				;;
+				*)
+					if [[ ! -x "$(command -v xolocert)" ]] ; then
+						echo "No. Actually you do not have xolocert binary" >&2
+						exit 1
+					fi
+					xolocert --help
+				;;
+			esac
+		;;
+		*)
+			case "$2" in
+				palindrome?|palindrome)
+					if [[ -x "$(command -v palindrome)" ]] ; then
+							palindrome "$1"
+					fi
+				;;
+				prime|prime?)
+					if [[ -x "$(command -v isprime)" ]] ; then
+						isprime "$1"
+					fi
+				;;
+				sky)
+					case "$3" in
+						blue*)
+							echo "Vete a dormir!"
+						;;
+						*)
+							echo "Why don't you ask Mr. Google? ..."
+							read -p "Would you?"
+							case "$REPLY" in
+								y|yes|si)
+									if [[ -x "$(command -v google-search-launcher)" ]] ; then
+										google-search-launcher google, "$@"
+									fi
+								;;
+								*)
+									echo "Bye"
+									exit 0
+								;;
+							esac
+						;;
+					esac
+				;;
+				*)
+					is --help
+				;;
+			esac
+		;;
+	esac
+	if [[ "$1" == "program" && "$3" == "available?" ]] ; then
+		if [[ -x "$(command -v $2)" ]] ; then
+			echo "Yes. Program $2 is at $(which $2)"
+		else
+			echo "No"
+		fi
+	fi
+}
+is "$@"

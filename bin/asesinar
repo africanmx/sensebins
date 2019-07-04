@@ -1,0 +1,59 @@
+#!/bin/bash
+### @author lu1s <luis _at_ african _dot_ mx> ###
+### @copyright WIP,lu1s,,DWTFYW LICENSE, ###
+PROGRAM_NAME="suicida"
+PROGRAM_VERSION="100"
+function do_suicidio_de(){
+	if test -z "$1"; then
+		return
+	fi
+	for i in "$(ps aux | grep $1 | head -n -1 | awk '{print $2}')"; do
+		kill -9 $i
+	done
+}
+function suicida(){
+	case "$1" in
+		--version) echo "${PROGRAM_NAME^} V.$PROGRAM_VERSION"; ;;
+		--help) echo " \
+$(suicida --version)
+Suicida attempts to kill all programs named [x] when you call it like:
+	suicida todos los [x]
+An special call for killing all xterm in a forced way can be executed like:
+	suicida todos los xterm --forzadamente
+
+	suicida --version prints $(suicida --version)
+	suicida --help prints what you see in this screen
+			"
+		;;
+		todos)
+			case "$2" in
+				los)
+					case "$3" in
+						xterm)
+							case "$4" in
+								--forzadamente) do_suicidio_de "xterm"; ;;
+								*)
+									read -p "Really? y/n"
+									case "$REPLY" in
+										n|no) exit 0; ;;
+										*) do_suicidio_de "xterm"; ;;
+									esac
+								;;
+							esac
+						;;
+						*)
+							read -p "Really suicide $3? y/n"
+							case "$REPLY" in
+								n|no) exit 0; ;;
+								*) do_suicidio_de "$3"; ;;
+							esac
+						;;
+					esac
+				;;
+			esac
+		;;
+		*) suicida --help; ;;
+	esac
+}
+suicida "$@"
+

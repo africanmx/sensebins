@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 PROGRAM_NAME="Como"
-PROGRAM_VERSION="0.3"
+PROGRAM_VERSION="0.4"
+### Changeset
+### # 2019-06-26 Added el sentido de la vida
 REQUIREMENT_ERROR=2
 WORKING_DIR="$HOME/lkso.data/$PROGRAM_NAME"
 MOOD_FILE="moodfile"
@@ -41,13 +43,14 @@ help(){
 
 Version $PROGRAM_VERSION
 Usage:
-	como estas?			Enters into a loop of self questioning.
-	como has estado?		Tells you how have I been.
-	como estaba ya no		Undo the last saved mood prompting for confirmation.
-	como estaba ya no --force	Undo the last saved mood without prompting.
-	como has estado [xxxx]?		Tells you how have [xxxx] been.
-	como --version			Tells you $PROGRAM_NAME version which is $PROGRAM_VERSION.
-	como --help			Shows this screen
+	como estas?				Enters into a loop of self questioning.
+	como has estado?			Tells you how have I been.
+	como estaba ya no			Undo the last saved mood prompting for confirmation.
+	como estaba ya no --force		Undo the last saved mood without prompting.
+	como has estado [xxxx]?			Tells you how have [xxxx] been.
+	como defino el sentido de la vida?	Tells you the instructions to define your life's meaning.
+	como --version				Tells you $PROGRAM_NAME version which is $PROGRAM_VERSION.
+	como --help				Shows this screen
 EOF
 }
 aprintf(){
@@ -110,18 +113,39 @@ como(){
 
 	case "$1" in
 		--version) version;;
-		--help|--ayuda) help;;
+		--help|--ayuda) help; exit; ;;
 		*) ;;
 	esac
 
 	verificar_requerimientos
 
 	case "$1" in
-		estas?) como_loop;;
+
+		estas|estas?)
+			como_loop
+		;;
+
 		*) ;;
 	esac
+
 	case "${@:1:2}" in
-		"has estado"*)
+		"defino el")
+			case "$6" in
+				vida|vida?)
+					cat <<EOF
+El sentido de la vida se puede definir todos los días todo el día. Es algo continuo en el espacio-tiempo.
+Si quieres definir el sentido de la vida utilizando LKSO puedes hacerlo con el programa "creo", escribiendo "creo en xxxxx",
+donde xxxxx es el sentido de la vida en el momento en el que estés dando el sentido a tu vida.
+Al hacerlo así, tus creencias o tus definiciones del sentido de la vida misma se guardarán en tu archivo del credo.
+Para más información escribe "creo --help"
+EOF
+				;;
+				*)
+					echo "tip: como defino el sentido de la vida? cual es el sentido de la vida?"
+				;;
+			esac
+		;;
+		"has estado"*|"ha estado"*|"te encuentras"*)
 			if [[ -n "$3" ]] ; then
 				user="$( echo $3 | tr -d '?' )"
 				tryid="$(groups "$user" 2>/dev/null & disown)"
@@ -180,7 +204,7 @@ como(){
 				*) como --help;;
 			esac
 		;;
-		"tienes la"*)
+		"tienes la"*|"tengo la"*)
 			clear
 			aprintf "Creo que así. Aguanta..."
 			sleep 1
@@ -189,7 +213,16 @@ como(){
 			clear
 			aprintf "No sé si a eso te referías"
 		;;
-		*) help;;
+		*)
+			printf "Comes "
+			sleep 1
+			declare -a conju=(come comemos comeis comen "comías" "comía" "comíamos" "comiais" "comían" "habría comido" "comiese" "comamos")
+			for i in $(seq 0 ${#conju[@]}); do
+				printf "${conju[$i]} "
+				sleep 0.375
+			done
+			sleep 3
+		;;
 	esac
 }
 como "$@"

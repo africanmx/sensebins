@@ -13,47 +13,31 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
+PROGRAM_NAME="Abc"
 PROGRAM_VERSION="0.1"
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
-	else
-		echo "$@"
-	fi
-}
-palindrome(){
+abc(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
-
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
-
+			cat <<EOF
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	abc			Echoes the alphabet in uppercase.
+	abc --version 		Shows abc version.
+	abc --help 		Shows this screen.
 EOF
-)
-		xecho "$helps"
 	;;
 	--console)
 		while [[ true ]] ; do
 			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
 			case "$REPLY" in
 				q|quit|exit|sal|salir)
-					xecho "Bye"
+					echo "Bye"
 					exit 0
-				;;
-				clear|cls)
-					clear
 				;;
 				*)
 					run "$REPLY"
@@ -67,25 +51,8 @@ EOF
 	esac
 }
 run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
-	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
-	fi
+	for i in {65..93} ; do
+		printf "\x$(printf %x $i)"
+	done
 }
-palindrome "$@"
+abc "$@"

@@ -15,8 +15,9 @@ ver(){
 			ver --version
 			cat <<EOF
 usage:
-	ver el codigo fuente de [bla bla bla]
-	ver mis bolas
+	$0 el codigo fuente de [bla bla bla]
+	$0 mis bolas
+	$0 * is an alias of less *
 EOF
 		;;
 		el|la)

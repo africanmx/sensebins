@@ -28,11 +28,15 @@ fibonacci(){
 		--help)
 			cat <<EOF
 
-$PROGRAM_NAME
+F i b  o   n     a        c             c                     i                                  #
+
    Version $PROGRAM_VERSION
 
 usage:
-	fibonacci			Prints fibonacci version to $MAXN
+	fibonacci			Prints fibonacci sum up to $MAXN
+	fibonacci --verbose		Prints the fibonacci series from 1 to $MAXN
+	fibonacci x			Prints fibonacci sum up to x
+	fibonacci x --verbose		Prints the fibonacci series from 1 to x
 	fibonacci --version 		Shows fibonacci version.
 	fibonacci --help 			Shows this screen.
 EOF
@@ -76,7 +80,11 @@ run(){
 		verbose=1
 	fi
 	declare -a arr=(1 1)
-	for i in $(seq 1 $maxn) ; do
+	if [[ -n "$verbose" ]] ; then
+		echo 1
+		echo 1
+	fi
+	for i in $(seq 1 $(( $maxn - 2 ))) ; do
 		j="$(( $i - 1 ))"
 		x="$(( ${arr[$i]} ))"
 		y="$(( ${arr[$j]} ))"

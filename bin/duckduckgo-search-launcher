@@ -2,7 +2,7 @@
 set -e
 PROGRAM_NAME="duckduckgo-search-launcher"
 PROGRAM_VERSION="0.3"
-PROGRAM_VOY_VOY=" _-__-_----  -    ->  Voy ... "
+PROGRAM_VOY_VOY=" arre "
 PROGRAM_DOMAIN="duckduckgo.com"
 PROGRAM_HTTP_PROTOCOL="https"
 PROGRAM_URL_PRESTRING="$PROGRAM_HTTP_PROTOCOL://www.$PROGRAM_DOMAIN/?q="

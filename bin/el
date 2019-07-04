@@ -13,79 +13,89 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
+PROGRAM_NAME="el"
 PROGRAM_VERSION="0.1"
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
+isitrunning(){
+	if [[ -n "$(pgrep $1)" ]] ; then
+		echo "Yes"
 	else
-		echo "$@"
+		echo "No"
 	fi
 }
-palindrome(){
+el(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
-
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
-
+			cat <<EOF
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	el [x] corre? | el [x] está corriendo?		Tells whether the program x is running or not
+	el [x] esta ahi?				Tells weather the program x is available or not
+	el --version 					Shows el version.
+	el --help 					Shows this screen.
 EOF
-)
-		xecho "$helps"
+	;;
+	sentido)
+		case "$2" in
+			de)
+				case "$3" in
+					la*|vida*)
+						if [[ -x "$(command -v cual)" ]] ; then
+							echo "$@"
+							echo "Ejecutando el comando: \"cual es el sentido de la vida?\"..."
+							cual es el sentido de la vida?
+						fi
+					;;
+					*) ;;
+				esac
+			;;
+		esac
 	;;
 	--console)
 		while [[ true ]] ; do
 			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
 			case "$REPLY" in
 				q|quit|exit|sal|salir)
-					xecho "Bye"
+					echo "Bye"
 					exit 0
 				;;
 				clear|cls)
 					clear
 				;;
 				*)
-					run "$REPLY"
+					isitrunning "$REPLY"
 				;;
 			esac
 		done
 	;;
 	*)
-		run "$@"
+		case "$2" in
+			corre?|corre)
+				isitrunning "$1"
+			;;
+			esta|"está"|anda)
+				case "$3" in
+					corriendo|corriendo?|prendido|prendido?)
+						isitrunning "$1"
+					;;
+					e|existe|existe?|disponible|disponible?|ahi|ahi?)
+						if [[ -n "$(which $1)" ]] ; then
+							echo "Yes"
+						else
+							echo "No"
+						fi
+					;;
+				esac
+			;;
+			*)
+				el --help
+			;;
+		esac
 	;;
 	esac
 }
-run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
-	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
-	fi
-}
-palindrome "$@"
+el "$@"

@@ -13,79 +13,80 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
-PROGRAM_VERSION="0.1"
-## Replace the > in the CONSOLE_THINGY
-## with your own string like ~$ or ~#
-## or whatever need. Leave a space for
-## better esthetics in the console.
-CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
-	else
-		echo "$@"
-	fi
-}
-palindrome(){
+PROGRAM_NAME="quiero"
+PROGRAM_VERSION="0.3"
+### CHANGESET
+### # 0.2-0.3 Debugged for multiple
+PROGRAM_ART=$(cat <<EOF
+ Q u i e r o o  o   o    o     o      O        O
+EOF
+)
+quiero(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
-
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
-
+			echo "$PROGRAM_ART"
+			echo "Versión $PROGRAM_VERSION"
+			cat <<EOF
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	quiero [esto, lo otro]			Attempts to instal everything (snap by default).
+	quiero [esto, lo otro] de [apt | snap]	Attempts to install first argument either from apt or snap.
+	quiero --version 			Shows quiero version.
+	quiero --help 				Shows this screen.
 EOF
-)
-		xecho "$helps"
-	;;
-	--console)
-		while [[ true ]] ; do
-			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
-			case "$REPLY" in
-				q|quit|exit|sal|salir)
-					xecho "Bye"
-					exit 0
-				;;
-				clear|cls)
-					clear
-				;;
-				*)
-					run "$REPLY"
-				;;
-			esac
-		done
 	;;
 	*)
-		run "$@"
+		if [[ -z "$1" ]] ; then
+			quiero --help
+			exit 0
+		fi
+		case "$2" in
+			de)
+				case "$3" in
+					apt)
+						quiero_apt "$1"
+					;;
+					snap)
+						case "$4" in
+							clasico|--classic|classic|--clasico)
+								snap install "$1" --classic
+							;;
+							*)
+								snap install "$1"
+							;;
+						esac
+						snap install "$1"
+					;;
+					*)
+						quiero --help;
+					;;
+				esac
+			;;
+			*)
+				quiero_apt "$@"
+			;;
+		esac
 	;;
 	esac
 }
-run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
-	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
-	fi
+
+quiero_apt(){
+	progs="$@"
+	read -p "Seguro? [s/n]  "
+	case "$REPLY" in
+	        y|yes|s|si|simon|va|dale|sincho|date)
+	                sudo apt update
+			sudo apt install "$progs"
+	        ;;
+	        *)
+	                if [[ ! -x "$(command -v aok)" ]] ; then
+	                        exit 0
+	                else
+	                        aok
+	                fi
+	        ;;
+	esac
+
 }
-palindrome "$@"
+
+quiero "$@"

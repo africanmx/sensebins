@@ -13,79 +13,85 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
-PROGRAM_VERSION="0.1"
+PROGRAM_NAME="cierra"
+PROGRAM_VERSION="0.3"
+### CHANGESET
+### # 0.2-0.3 Decoupled gender by adding alternative word la and las, as well as english
+###           compatibility for people linking to an english word like close or something.
+###           Also, the last chantset was never added sorry for that. I am cancelling it
+###           in this message.
+### # 0.1-0.2 Added the "sudando" post option
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
-	else
-		echo "$@"
-	fi
+cierra_el_programa(){
+	for i in "$(ps aux | grep "$1" | head -n -1 | awk '{print $2}')"; do
+		kill -9 $i
+	done
 }
-palindrome(){
+cierra_los_programas(){
+	for i in "$@"; do
+		cierra_el_programa "$i"
+	done
+}
+cierra(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
+			echo "$PROGRAM_NAME Versión $PROGRAM_VERSION"
+			cat <<EOF
 
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
+       _
+      (_)
+  ____ _  ____  ____ ____ ____
+ / ___) |/ _  )/ ___) ___) _  |
+( (___| ( (/ /| |  | |  ( ( | |
+ \____)_|\____)_|  |_|   \_||_|  Versión $PROGRAM_VERSION
 
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	$0 (el la the) (programa program) [xxx]		Attempts to kill all instances of program xxx.
+	$0 (los las all) (programas) [xxx..]		Attempts to kill all instances of the programs xxx...
+	$0 --version 					Shows cierra version.
+	$0 --help 					Shows this screen.
 EOF
-)
-		xecho "$helps"
 	;;
 	--console)
 		while [[ true ]] ; do
 			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
 			case "$REPLY" in
 				q|quit|exit|sal|salir)
-					xecho "Bye"
+					echo "Bye"
 					exit 0
 				;;
-				clear|cls)
-					clear
-				;;
 				*)
-					run "$REPLY"
+					cierra los programas "$REPLY"
 				;;
 			esac
 		done
 	;;
-	*)
-		run "$@"
+	el|la|the)
+		case "$2" in
+			programa)
+				cierra_los_programas "$3"
+			;;
+			*)
+				cierra_los_programas "$2"
+			;;
+		esac
 	;;
+	los|las|all)
+		case "$2" in
+			programas)
+				cierra_los_programas "${@:3}"
+			;;
+			*)
+				cierra_los_programas "${@:2}"
+			;;
+		esac
+	;;
+	*) cierra --help;;
 	esac
 }
-run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
-	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
-	fi
-}
-palindrome "$@"
+cierra "$@"

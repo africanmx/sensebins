@@ -13,43 +13,35 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
+PROGRAM_NAME="perate"
 PROGRAM_VERSION="0.1"
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
-	else
-		echo "$@"
-	fi
-}
-palindrome(){
+SLEEPMAX=16200
+perate(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
+			cat <<EOF
 
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
+$PROGRAM_NAME
+   Version $PROGRAM_VERSION
 
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	perate x			Waits x seconds
+	perate --version 		Shows perate version.
+	perate --help 			Shows this screen.
 EOF
-)
-		xecho "$helps"
 	;;
 	--console)
 		while [[ true ]] ; do
 			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
 			case "$REPLY" in
 				q|quit|exit|sal|salir)
-					xecho "Bye"
+					echo "Bye"
 					exit 0
 				;;
 				clear|cls)
@@ -67,25 +59,17 @@ EOF
 	esac
 }
 run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
+	if [ -z "$1" ] ; then
+		for i in {1..7}; do echo; done
+		echo "		p e r a n d o . . .    o . O   "
+		sleep "$SLEEPMAX"
+		for i in {1..7}; do echo; done
+		echo " o.O ? "
+		echo
+		exit 0
 	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
-	fi
+	printf "Sincho a las $(date +%H:%M) ...    o.O    "
+	sleep "$1"
+	echo " ...  Ya $(date)"
 }
-palindrome "$@"
+perate "$@"

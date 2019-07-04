@@ -14,12 +14,20 @@
 ## IN THE SOFTWARE.
 
 PROGRAM_NAME="Di"
-PROGRAM_VERSION="0.3"
+PROGRAM_VERSION="0.4"
+### Changeset
+### 0.3-0.4 Added xtail with lolcat
 
 MEDKLOGIN=1
 MICDIR="$HOME/lkso.data/di.d"
 MICFILE=".kmicko.txt"
-
+xtail(){
+	if [[ -x "$(command -v lolcat)" ]] ; then
+		tail "$@" | lolcat
+	else
+		tail "$@"
+	fi
+}
 function xolocertini(){
 	if [ -x "$(command -v xolocert)" ] ; then
 		tryf="$(xolocert lksoid)"
@@ -138,7 +146,7 @@ function watch_mic(){
 		echo "          but you can create it with di --build " >&2
 		return 1
 	fi
-	tail -F "$MICFILE"
+	xtail -F "$MICFILE"
 	return 0
 }
 
@@ -211,7 +219,9 @@ di(){
 		--help)
 			cat <<EOF
 LKSO'S $PROGRAM_NAME V.$PROGRAM_VERSION
-
+________
+~~~~++++_________
+~~~~~~~+++++++++++
 M i c r ó f o n o n s k y  ... A n t i p r i v a c i d a d
      Version Nudista $PROGRAM_VERSION
 
@@ -281,11 +291,11 @@ function di_siempre(){
 	echo " [ $(whoami) LIVE MIC ] \
 Say whatever you like.
 (quit exits program)
-	" >&2
+	" >&1
 	while true; do
 		read -p "º\$ "
 		case "$REPLY" in
-			--quit|quit|q|sal|exit|salir|salga|bye) echo "Bai!" >&2 && exit 0; ;;
+			--quit|quit|q|sal|exit|salir|salga|bye) echo "Bai!" >&1 && exit 0; ;;
 			clear)
 				clear
 			;;

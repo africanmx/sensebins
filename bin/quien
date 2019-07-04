@@ -10,7 +10,9 @@
 #######################################################################################################################
 set -e
 PROGRAM_NAME="quien"
-PROGRAM_VERSION="0.1"
+PROGRAM_VERSION="0.2"
+### CHANGESET
+### 0.1-0.2 Started versioning the programa como. From the oven.
 PROGRAM_AUTHOR="lu1s"
 PROGRAM_DESCRIPTION="answers common environment questions for spanish speaking users"
 quien(){
@@ -36,13 +38,57 @@ quien(){
 			[[ -x "$(command -v whoami)" ]] && whoami
 			exit 0
 		;;
+		eres|eres?|sos|sos?)
+			case "$3" in
+				tu|tu?|vos|vos?)
+					case "$4" in
+						para)
+							if [[ -x "$(command -v dick)" ]] ; then
+								dick --venti
+							else
+								echo "E: Programa dick no encontrado para ${@:4} " >&2
+							fi
+						;;
+						hoy|hoy?)
+							if [[ -x "$(command -v ranbasho)" ]] ; then
+								ranbasho
+							else
+								echo "E: Command ranbasho not found" >&2
+							fi
+						;;
+						*)
+							if [[ -x "$(command -v dios)" ]] ; then
+								dios
+							else
+								echo "E: Command dios not available" >&2
+							fi
+						;;
+					esac
+				;;
+				*)
+					if [[ -x "$(command -v dios)" ]] ; then
+						dios
+					else
+						echo "E: Programa dios no habilitado" >&2
+					fi
+				;;
+			esac
+		;;
 		es)
 			case "$2" in
-				chente)
+				dios*)
+					if [[ -x "$(command -v dios)" ]] ; then
+						dios
+					else
+						echo "No está instalado el programa dios" >&2
+						exit 1
+					fi
+				;;
+				chente*)
 					echo "Chente es el CTO de la computadora" >&1
 					exit 1
 				;;
-				sushi)
+				sushi*)
 					echo "Sushi es la CEO de la computadora" >&1
 					exit 1
 				;;

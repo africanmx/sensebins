@@ -22,11 +22,18 @@ PROGRAM_VERSION="0.1"
 CONSOLE_THINGY="> "
 DEFAULT_ALFA=1
 DEFAULT_OMEGA=6
+xecho(){
+	if [[ -x "$(command -v lolcat)" ]] ; then
+		echo "$@" | lolcat
+	else
+		echo "$@"
+	fi
+}
 dado(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			cat <<EOF
+			helps=$(cat <<EOF
 
 D a d o
      Version $PROGRAM_VERSION
@@ -38,6 +45,8 @@ usage:
 	dado --version 		Shows dado version.
 	dado --help 		Shows this screen.
 EOF
+)
+		xecho "$helps"
 	;;
 	--console)
 		while [[ true ]] ; do
@@ -64,7 +73,7 @@ EOF
 roll(){
 	## there should be better ways
 
-	echo "$(( ( $RANDOM % $2 ) + $1 ))"
+	xecho "$(( ( $RANDOM % $2 ) + $1 ))"
 }
 run(){
 	case "$1" in

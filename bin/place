@@ -13,79 +13,85 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="palindrome"
+PROGRAM_NAME="place"
 PROGRAM_VERSION="0.1"
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
-xecho(){
-	if [[ -x "$(command -v lolcat)" ]] ; then
-		echo "$@" | lolcat
-	else
-		echo "$@"
-	fi
-}
-palindrome(){
+PLACED="$HOME/lkso.data/$PROGRAM_NAME"
+PLACEF="$PLACED/.placesfile"
+place(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
 		--help)
-			helps=$(cat <<EOF
+			cat <<EOF
 
-P A L I N D R O M E
-    Version $PROGRAM_VERSION
+$PROGRAM_NAME
+   Version $PROGRAM_VERSION
 
 usage:
-	palindrome				Evaluates STDIN or ARGUMENTS for palindromeness, in that order of priority.
-	palindrome --version 	Shows palindrome version.
-	palindrome --help 		Shows this screen.
+	place s				Saves the current directory
+	place l				Prints out the last saved directory
+	place p				Pops the last saved directory (outputs and removes it)
+
+	place n x			Prints the x'th stored place, from newest to oldest
+
+					This is a super simple implementation of a lifo queue written
+					in bash for you to store your places.
+
+	place less			Uses less program to show you all your places
+	place cat			Uses cat program to print out all your places
+
+	place --version 		Shows place version.
+	place --help 			Shows this screen.
 EOF
-)
-		xecho "$helps"
-	;;
-	--console)
-		while [[ true ]] ; do
-			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
-			case "$REPLY" in
-				q|quit|exit|sal|salir)
-					xecho "Bye"
-					exit 0
-				;;
-				clear|cls)
-					clear
-				;;
-				*)
-					run "$REPLY"
-				;;
-			esac
-		done
 	;;
 	*)
 		run "$@"
 	;;
 	esac
 }
-run(){
-	## recuerda que hiciste un rev propio para luego ##
-	if [[ ! -x "$(command -v rev)" ]] ; then
-			echo "Error :: Program rev is not available" >&2
-			exit 1
-	fi
-	if [[ -p /dev/stdin ]]; then
-		readarray input
-		input="$(echo $input | head -n 1)"
-	else
-		input="$@"
-	fi
-	if [[ -z "$input" ]] ; then
-		palindrome --help
-	fi
-	trys="$( echo $input | rev)"
-	if [[ "$trys" == "$@" ]] ; then
-		xecho "Yes"
-	else
-		xecho "No"
+check_placef(){
+	if [ ! -f "$PLACEF" ] ; then
+		mkdir -p "$PLACED"
+		touch "$PLACEF"
 	fi
 }
-palindrome "$@"
+run(){
+	check_placef
+	case "$1" in
+		s)
+			pwd >> "$PLACEF"
+			echo "Done"
+		;;
+		l)
+			tail -n 1 "$PLACEF"
+		;;
+		p)
+			lastb="$(tail -n 1 $PLACEF)"
+			head -n -1 "$PLACEF" > "$PLACED/tmpfile"
+			mv "$PLACED/tmpfile" "$PLACEF"
+			echo "$lastb"
+		;;
+		n)
+			maxn="$(cat $PLACEF | wc -l)"
+			if [[ "$2" -gt "$maxn" || "$2" -lt 1 ]] ; then
+				echo "E: Max number is $maxn" >&2
+				exit
+			fi
+			tail -n "$2" "$PLACEF" | head -n 1
+		;;
+		less)
+			less "$PLACEF"
+		;;
+		cat)
+			cat "$PLACEF"
+		;;
+		*)
+			place --help
+		;;
+	esac
+}
+place "$@"

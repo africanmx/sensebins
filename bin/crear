@@ -175,9 +175,7 @@ crear(){
 			esac
 		;;
 		*)
-			cat <<EOF
-
-EOF
+			crear --help
 		;;
 	esac
 }

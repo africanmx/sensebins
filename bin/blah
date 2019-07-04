@@ -184,6 +184,10 @@ function what_did_you_say(){
 	tail -n "$nth" "$MICDIR/$MICFILE" | head -n 1 | awk '{print $3}'
 }
 
+
+### TODO: Best way to store data in file as lifo
+###	  Ideas: base64 data, json, json with base64, csv, bye
+
 function export_mic(){
 	export_dir="$1"
 	if [[ -z "$1" ]] ; then
@@ -249,7 +253,9 @@ Usage:
 		Runs microphone forever ;)
 	$CMD --undo
 		Erases the last think you said printing it out for the
-		last time.
+		last time. (this is ackwardly only deleting line by line, so if you
+			    said a lot of things and you have newlines then this will
+			    result into an ackward situation. Same as reading all this).
 		So you can apply it to your strong languages.
 	$CMD --watch
 		Observes the microphone file, using the program tail.
@@ -304,11 +310,15 @@ EOF
 			what_did_you_say --last
 		;;
 		-n)
+			## ESTO ES UNA PENDEJADA, FAVOR DE UTILIZAR POR LO MENOS UN BASE64 O UNA MAMADA QUE QUITE
+			## NEWLINES POR COMPLETO O QUE COMPRIMA TEXTO O QUE SE YO... QUE MANERA DE VALER V
+			##
+			## AFECTUOSAMENTE, TU REGAÑADOR DE MANERA DE PROGRAMAR.
 			what_did_you_say -n "$2"
 		;;
 		*)
 			if [[ -z "$1" ]] ; then
-				say --help
+				blah --help
 				exit 0
 			fi
 			say "$@"

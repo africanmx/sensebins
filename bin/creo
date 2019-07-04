@@ -1,0 +1,255 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+
+PROGRAM_NAME="Creo"
+PROGRAM_VERSION="0.3.$(date +%q).0"
+### Changeset
+### # 0.2->0.3 Added perdon in the console
+PROGRAM_VERSION_RETURN=0
+ROGRAM_TRUST=1
+PROGRAM_SHARES=256
+PROGRAM_LICENSE="GPL"
+
+PROGRAM_FILES_CREDUM_DIR="$HOME/lkso.data/$PROGRAM_NAME.d"
+PROGRAM_FILES_CREDUM="$PROGRAM_FILES_CREDUM_DIR/credum.txt"
+
+MVV=1
+AOK=1
+
+function creo_version(){
+	echo $PROGRAM_NAMEV$PROGRAM_VERSION >&1
+	return $PROGRAM_VERSION_RETURN
+}
+
+function creo_help(){
+	cat <<EOF
+
+   $PROGRAM_HELP Version $PROGRAM_VERSION
+   _
+  (")
+ (/ \)
+(_\`/._)		<- Art by Veronica Karlsson
+
+Usage:
+	creo en [whatever]					Adds [whatever] you beleive in, to your credo file
+	creo en esto mero					Shows your credo file (q for exit)
+	creo en nada otra vez					Refreshes your credo file
+	creo en que voy a hacer una oracion a diosito		Opens a little console so you can prey to saint little god
+								(O sea que abre una consolita para orarle a diosito santo)
+
+	creo --version
+	creo --help
+EOF
+}
+orar_siempre(){
+	clear
+	echo "$PROGRAM_NAME Versión $PROGRAM_VERSION"
+	cat <<EOF
+Consola Para Hacer Oración a tu Dios/Diosa y/o Diosito/Diosita
+EOF
+	while true; do
+		read -p " ° > "
+		case "$REPLY" in
+			salir|renuncio|quit|sal|salgase|salte|exit|quit|q)
+				echo "A, Dios."
+				exit 0
+			;;
+			"como salgo de aqui"*)
+				cat <<EOF
+Para salir solo escribe salir o quit o sal o salte o renuncio mini $(whoami)
+EOF
+			;;
+			perdon*|sorry*|losiento*)
+				cat <<EOF
+yo siempre perdono todo
+EOF
+			;;
+			gracias*)
+				cat <<EOF
+ _(  )_( )_
+(_   _    _) <- Nube con el agradecimiento
+  (_) (__)
+
+Nada que agradecer por ahora $(whoami) sólo sé buena persona siempre.
+EOF
+			;;
+			abre*)
+				cat <<EOF
+Voy a enviar tu oración "as is" "without warranty" al programa "abre" si es que está.
+EOF
+				read -p "Aceptas? si / no R= " axa
+				case "$axa" in
+					si|yes|claro|simon|va|dale|yes|y|si)
+						if [[ -x  "$(command -v abrir)" ]] ; then
+							# abrir "$(echo $axa | awk '{$1=""; print}')"
+							echo "Ok voy"
+							echo "$axa" | awk '{$1=""; print}'
+						else
+							echo " Error: Programa abrir no encontrado " >&2
+							echo "Pues no está disponible el programa abrir fíjate."
+						fi
+					;;
+					*)
+				cat <<EOF
+Ok no problemo.
+EOF
+					;;
+				esac
+			;;
+			oh)
+				if [[ -x "$(command -v oh)" ]] ; then
+					oh
+				fi
+				echo "Ohhhhhh my diosito"
+			;;
+			pinche*|chinga*|fuck*|suck*)
+				cat <<EOF
+
+Art by Michal 'Goldmoon' Kwasniewski
+
+                                        ___    ,'""""'.
+                                    ,"""   """"'      \`.
+                                   ,'        _.         \`._
+                                  ,'       ,'              \`"""'.
+                                 ,'    .-""\`.    ,-'            \`.
+                                ,'    (        ,'                :
+                              ,'     ,'           __,            \`.
+                        ,""""'     .' ;-.    ,  ,'  \             \`"""".
+                      ,'           \`-(   \`._(_,'     )_                \`.
+                     ,'         ,---. \ @ ;   \ @ _,'                   \`.
+                ,-""'         ,'      ,--'-    \`;'                       \`.
+               ,'            ,'      (      \`. ,'                          \`.
+               ;            ,'        \    _,','                            \`.
+              ,'            ;          \`--'  ,'                              \`.
+             ,'             ;          __    (                    ,           \`.
+             ;              \`____...  \`78b   \`.                  ,'           ,'
+             ;    ...----'''' )  _.-  .d8P    \`.                ,'    ,'    ,'
+_....----''' '.        _..--"_.-:.-' .'        \`.             ,''.   ,' \`--'
+              \`" mGk "" _.-'' .-'\`-.:..___...--' \`-._      ,-"'   \`-'
+        _.--'       _.-'    .'   .' .'               \`"""""
+  __.-''        _.-'     .-'   .'  /
+ '          _.-' .-'  .-'        .'
+        _.-'  .-'  .-' .'  .'   /
+    _.-'      .-'   .-'  .'   .'
+_.-'       .-'    .'   .'    /
+       _.-'    .-'   .'    .'
+    .-'            .'
+
+
+EOF
+			sleep 1
+			echo "Ahhhh NTC no me enojo ya!"
+			;;
+			*)
+				cat <<EOF
+
+ _(  )_( )_
+(_   _    _) <- Nube
+  (_) (__)
+
+Siempre te voy a escuchar ok $(whoami)? todo el rato!
+La oración se está enviando siempre ;)
+
+EOF
+			;;
+		esac
+	done
+}
+creo(){
+	case "$1" in
+		--version) creo_version && exit $PROGRAM_VERSION_RETURN; ;;
+		--help) creo_help && exit $PROGRAM_VERSION_RETURN; ;;
+		--build-credum)
+			case "$2" in
+				--force) FORCE=1; ;;
+				*) FORCE=0; ;;
+			esac
+			if [[ "$FORCE" -eq 0 ]] ; then
+				read -p "Sure? y/n s/n "
+				case "$REPLY" in
+					y|yes|s|si) ;;
+					*) echo "Ok no" >&1; exit 0;;
+				esac
+			fi
+			if [[ -d "$PROGRAM_FILES_CREDUM_DIR" ]] ; then
+				rm -rf "$PROGRAM_FILES_CREDUM_DIR"
+			fi
+			mkdir -p "$PROGRAM_FILES_CREDUM_DIR"
+			touch "$PROGRAM_FILES_CREDUM"
+			MKID=1
+			if [[ -x "$(command -v xolocert)" ]] ; then
+				trys="$(xolocert lksoid 2>/dev/null)"
+				if [[ -n "$trys" ]] ; then
+					MKID="$trys"
+				fi
+			fi
+			echo "$PROGRAM_NAME [Credo] [$MKID]" >> "$PROGRAM_FILES_CREDUM"
+			echo "Done" >&1
+		;;
+		*) ;;
+	esac
+	case "$1" in
+		que)
+			echo "Ah, mira"
+		;;
+		en)
+			case "$@" in
+				"en esto mero")
+					if [[ ! -f "$PROGRAM_FILES_CREDUM" ]] ; then
+						creo --build-credum
+					fi
+					less "$PROGRAM_FILES_CREDUM"
+					exit 0
+				;;
+				"en nada otra vez")
+					if [[ -f "$PROGRAM_FILES_CREDUM" ]] ; then
+						read -p "Sure? y/n s/n "
+						case "$REPLY" in
+							y|yes|s|si) creo --build-credum --force; exit 0;;
+							*) echo "Your credo was untouched then." >&1; exit 0;;
+						esac
+					else
+						echo "No creias en nada desde antes (o sea no hay creo file)"
+						read -p "Deseas crearlo vacio? y/n s/n "
+						case "$REPLY" in
+							y|yes|s|si)
+								creo --build-credum
+								echo "Listo!" >&1
+								exit 0
+							;;
+							*) echo "Ok" >&1; ;;
+						esac
+					fi
+				;;
+				"en que voy a hacer una oracion a diosito")
+					orar_siempre
+				;;
+				*) ;;
+			esac
+			mkdir -p "$PROGRAM_FILES_CREDUM_DIR"
+			echo "${@:2}" >> "$PROGRAM_FILES_CREDUM"
+			if [ -x "$(command -v aok)" ] ; then
+				aok
+			else
+				echo $PROGRAM_VERSION_RETURN >&1
+			fi
+		;;
+		*)
+			creo --help
+		;;
+	esac
+}
+creo "$@"

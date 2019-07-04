@@ -1,0 +1,87 @@
+#!/bin/bash
+################################################################
+PROGRAM_NAME="Tmux Auto Rename Sessions Cron"
+PROGRAM_VERSION="0.1.0"
+DEFAULT_RUNTIME="59"
+DEFAULT_TIMEOUT="3"
+PROGRAM_HELP=$(cat <<EOF
+
+[... [......[..       [..[..     [..[..    [..                      
+     [..    [. [..   [...[..     [.. [..  [..      [..        [..   
+     [..    [.. [.. [ [..[..     [..  [..[..       [..        [..   
+     [..    [..  [..  [..[..     [..  [..[..  [... [.....[... [.....
+     [..    [..   [.  [..[..     [..  [..[..       [..        [..   
+     [..    [..       [..[..     [.. [..  [..      [..        [..   
+     [..    [..       [..  [.....   [..    [..                      
+                                                     
+Usage:
+	tmuxautorenamesessionscron --run		Renames tmux sessions every $DEFAULT_TIMEOUT seconds for $DEFAULT_RUNTIME seconds.
+	tmuxautorenamesessionscron --run -t [x]		Renames tmux sessions every [x] seconds for $DEFAULT_RUNTIME seconds.
+	tmuxautorenamesessionscron --run -t [x] -to [y]	Renames tmux sessions every [x] seconds for [y] seconds.
+	tmuxautorenamesessionscron --help		Shows this screen.
+	tmuxautorenamesessionscron --version		Shows program version.
+EOF
+)
+xexecute(){
+	if [[ ! -x "$(command -v tmux)" ]] ; then
+		exit 0
+	fi
+	sessions="$(tmux ls | awk '{print $1}' | tr -d ':')"
+	while read -r line; do
+		name="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+		tmux rename-session -t "$line" "$name"
+	done <<< "$sessions"
+}
+xrun(){
+	started="$(date +%s)"
+	timeout="$(( $1 ))"
+	runtime="$(( $2 ))"
+	carrier="$(date +%s)"
+	stillon=1
+	while [[ "$stillon" -eq 1 ]]; do
+		xexecute
+		sleep "$timeout"
+		nowis="$(date +%s)"
+		timer="$(( $nowis - $started ))"
+		if [[ "$timer" -gt "$runtime" ]] ; then
+			stillon=0
+		fi
+	done
+}
+tmuxautorenamesessionscron(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+		;;
+		--version-real)L
+			echo "$PROGRAM_VERSION"
+		;;
+		--help)
+			tmuxautorenamesessionscron --version
+			echo "$PROGRAM_HELP"
+		;;
+		--run)
+			case "$2" in
+				-t)
+					timeout="$3"
+				;;
+				*)
+					timeout="$DEFAULT_TIMEOUT"
+				;;
+			esac
+			case "$4" in
+				-to)
+					runtime="$5"
+				;;
+				*)
+					runtime="$DEFAULT_RUNTIME"
+				;;
+			esac
+			xrun "$timeout" "$runtime"
+		;;
+		*)
+			tmuxautorenamesessionscron --help
+		;;
+	esac
+}
+tmuxautorenamesessionscron "$@"

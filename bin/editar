@@ -45,8 +45,8 @@ editar(){
 			editar --version-verbose
 			trys=$(cat <<EOF
 Modo de uso:
-	editar el (codigo (fuente)) de [programa a editar]					Intenta editar el programa utilizando nano (y sudo).
-	editar el (codigo (fuente)) de [programa a editar] con [editor]		Intenta editar el programa utilizando el [editor].
+	editar el x															Edita el programa x
+	editar los x														Recordador embarazoso de no intentar hacer todo a la vez.
 
 	editar [args]														Es un alias directo de nano.
 
@@ -63,33 +63,36 @@ EOF
 			fi
 		;;
 		el|la)
-			case "$2" in
-				codigo)
-					case "$3" in
-						fuente)
-							case "$4" in
-								de)
-									case "$6" in
-										con|usando|mediante) editar --run-source "$5" --with-editor "$7"; ;;
-										*) editar --run-source "$5"; ;;
-									esac
-								;;
-								*) editar --help;;
-							esac
+			trys="$2"
+			case "$3" in
+				en|con|mediante|usando|utilizando)
+					case "$4" in
+						el)
+							bash -c "$5 $(which $trys)" >/dev/null 2>&1 & disown
 						;;
-						de)
-							case "$5" in
-								con|usando|mediante) editar --run-source "$4" --with-editor "$6"; ;;
-								*) editar --run-source "$4"; ;;
-							esac
+						*)
+							bash -c "$4 $(which $trys)" >/dev/null 2>&1 & disown
 						;;
-						*) ;;
 					esac
 				;;
 				*)
-					editar --run-source "$3"
+					if [[ -x "$(command -v "$trys")" ]] ; then
+						nano "$(which $trys)"
+					fi
 				;;
 			esac
+		;;
+		los|las)
+				printf "Uno a la vez: "
+				for i in "${@:2}" ; do
+					printf "i "
+				done
+				read -p "Cual: "
+				if [[ -x "$(command -v $REPLY)" ]] ; then
+					nano "$(which $REPLY)"
+				else
+					echo "$REPLY no es un programa existente" >&2
+				fi
 		;;
 		--run-source)
 			trys="$(which $2 2>/dev/null)"

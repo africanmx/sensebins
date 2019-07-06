@@ -3,7 +3,7 @@ PROGRAM_NAME="Xolocert"
 PROGRAM_VERSION="0.2.0"
 PROGRAM_COMMAND="xolocert"
 XCRT_LINES=64
-XCRT_LINE_LENGTH=64
+XCRT_LINE_LENGTH=52
 PROGRAM_HELP=$(cat <<EOF
 Xolocert generates quick pseudo-random micro certs.
 It consists of $XCRT_LINES lines of $XCRT_LINE_LENGTH printable
@@ -43,12 +43,12 @@ xolocert(){
 				echo "Error. File $HOME/XCRT is present" >&2
 				exit 1
 			fi
-			UUID="$(cat /proc/sys/kernel/random/uuid)"
+			UUID="$(cat /dev/urandom | tr -dc '0-9a-f' | fold -w 16 | head -n 1)"
 			GRAPH_LINES="$(( $XCRT_LINES-2 ))"
 			touch "$HOME/XCRT"
 			echo "### $PROGRAM_NAME $PROGRAM_VERSION - XCRT $UUID ###" >> "$HOME/XCRT"
 			echo "SOC" >> "$HOME/XCRT"
-			cat /dev/urandom | tr -dc [:graph:] | fold -w $XCRT_LINE_LENGTH | head -n $GRAPH_LINES >> "$HOME/XCRT"
+			cat /dev/urandom | tr -dc 'a-zA-Z0-9\_\-\=' | fold -w $XCRT_LINE_LENGTH | head -n $GRAPH_LINES >> "$HOME/XCRT"
 			cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w $XCRT_LINE_LENGTH | head -n 2 >> "$HOME/XCRT"
 			echo "EOC" >> "$HOME/XCRT"
 			echo "### $PROGRAM_NAME V $PROGRAM_VERSION - XCRT $UUID [timestamp $(date +%Y%m%d%H%M%S%N)] ###" >> "$HOME/XCRT"

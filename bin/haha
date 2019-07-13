@@ -73,6 +73,10 @@ EOF
 				done
 			fi
 		;;
+		falsamente)
+			test -x "$(command -v lolcat)" && echo "h a  h   a       h           a    s h  u u u u" | lolcat && exit
+			echo "ja"
+		;;
 		*)
 	## The following lines demonstrates that the creators of this ##
 	## probably were not thinking so much about anything or not ####

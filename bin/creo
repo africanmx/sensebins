@@ -72,7 +72,7 @@ EOF
 Para salir solo escribe salir o quit o sal o salte o renuncio mini $(whoami)
 EOF
 			;;
-			perdon*|sorry*|losiento*)
+			*erdon*|*orry*|*osiento*) # nasty af program
 				cat <<EOF
 yo siempre perdono todo
 EOF
@@ -109,7 +109,7 @@ EOF
 					;;
 				esac
 			;;
-			oh)
+			oh*)
 				if [[ -x "$(command -v oh)" ]] ; then
 					oh
 				fi

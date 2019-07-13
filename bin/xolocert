@@ -43,7 +43,7 @@ xolocert(){
 				echo "Error. File $HOME/XCRT is present" >&2
 				exit 1
 			fi
-			UUID="$(cat /dev/urandom | tr -dc '0-9a-f' | fold -w 16 | head -n 1 | sed -e 's/\(........\)\(....\)\(....\)\(....\)\(............\)/\1-\2-\3-\4-\5/')"
+			UUID="$(cat /dev/urandom | tr -dc '0-9a-f' | fold -w 32 | head -n 1 | sed -e 's/\(........\)\(....\)\(....\)\(....\)\(............\)/\1-\2-\3-\4-\5/')"
 			GRAPH_LINES="$(( $XCRT_LINES-2 ))"
 			touch "$HOME/XCRT"
 			echo "### $PROGRAM_NAME $PROGRAM_VERSION - XCRT $UUID ###" >> "$HOME/XCRT"
@@ -125,8 +125,8 @@ xolocert(){
 				echo "Error: XCRT not present" >&2
 				exit 1
 			fi
-			trys="$(tail -n 4 "$HOME/XCRT" | head -n 1 | fold -w $XCRT_LINE_LENGTH | tr -dc 'A-Za-z0-9')"
-			if [[ "${#trys}" -ne $XCRT_LINE_LENGTH ]] ; then
+			trys="$(xolocert --see | tail -n 4 | head -n 1 | fold -w $XCRT_LINE_LENGTH | tr -dc 'A-Za-z0-9')"
+			if [[ "${#trys}" -ne "$XCRT_LINE_LENGTH" ]] ; then
 				echo "Error: XCRT appears to be invalid" >&2
 				exit 1
 			fi

@@ -153,17 +153,17 @@ EOF
 					echo " E: User $user is invalid " >&2
 					exit 1
 				fi
-				tryp="/home/$user/lkso.data/$PROGRAM_NAME/$MOOD_FILE"
+				tryp="$HOME/lkso.data/$PROGRAM_NAME/$MOOD_FILE"
 				if [[ ! -f "$tryp" ]] ; then
 					echo " E: The mood file for $user is unreachable, invalid or not present " >&2
 					exit 1
 				fi
-				trys="$(tail -n 1 "$tryp" | tr "	" " " | cut -d " " -f 7-1000)"
+				trys="$(tail -n 1 "$tryp" | tr "	" " " | cut -d " " -f 9-1000)"
 			else
 				user="$(whoami)"
 				if [[ ! -f "$WORKING_DIR/$MOOD_FILE" ]] ; then
 					echo "Warning: No hay moods guardamos"
-					como_loop 
+					como_loop
 				fi
 				trys="$(tail -n 1 "$WORKING_DIR/$MOOD_FILE" | tr "	" " " | cut -d " " -f 7-1000)"
 			fi

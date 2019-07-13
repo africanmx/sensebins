@@ -14,9 +14,10 @@
 ## IN THE SOFTWARE.
 
 PROGRAM_NAME="Di"
-PROGRAM_VERSION="0.4"
+PROGRAM_VERSION="0.5"
 ### Changeset
 ### 0.3-0.4 Added xtail with lolcat
+### 0.4-0.5 Added --last option, and xecho fn
 
 MEDKLOGIN=1
 MICDIR="$HOME/lkso.data/di.d"
@@ -26,6 +27,13 @@ xtail(){
 		tail "$@" | lolcat
 	else
 		tail "$@"
+	fi
+}
+xecho(){
+	if [[ -x "$(command -v lolcat)" ]] ; then
+		echo "$@" | lolcat
+	else
+		echo "$@"
 	fi
 }
 function xolocertini(){
@@ -81,7 +89,7 @@ function build_micdir(){
 	touch "$MICDIR/$MICFILE"
 	echo "MKL $MEDKLOGIN " >> "$MICDIR/$MICFILE"
 	echo "LKSO-DI [$(whoami)] [$(date)] [START]" >> "$MICDIR/$MICFILE"
-	echo "Done " >&2
+	xecho "Done "
 	return 0
 }
 
@@ -100,11 +108,11 @@ function remove_micdir(){
 	case "$axa" in
 		y|yes|si)
 			rm -rf "$MICDIR"
-			echo "Done" >&2
+			xecho "Done"
 			return 0
 		;;
 		*)
-			echo "Ok, no" >&2
+			xecho "Ok, no"
 			return 0
 		;;
 	esac
@@ -118,14 +126,14 @@ function say(){
 		*) allst="$@";;
 	esac
 	echo "$(whoami) [$(date)] :: $allst " >> "$MICDIR/$MICFILE"
-	echo " $allst fue dicho." >&2
+	xecho " $allst fue dicho."
 	return 0
 }
 function see_mic(){
 	MICFILE="$MICDIR/$MICFILE"
 	if [ ! -x "$(command -v less)" ] ; then
 		echo " Error :: program less is needed " >&2
-		return 1 
+		return 1
 	fi
 	if [ ! -f "$MICFILE" ] ; then
 		echo " Error :: mic file not present " >&2
@@ -168,7 +176,7 @@ function undo_mic(){
 	lastb="$(tail -n $n $MICDIR/$MICFILE)"
 	head -n -$n "$MICDIR/$MICFILE" > "$MICDIR/tempfile"
 	mv "$MICDIR/tempfile" "$MICDIR/$MICFILE"
-	echo "$lastb"
+	xecho "$lastb"
 }
 
 function export_mic(){
@@ -180,11 +188,11 @@ Usage:
 EOF
 		exit 1
 	fi
-	echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
-	echo "Exporter"
-	echo "Your microphone will be exported to: $export_dir"
+	xecho "$PROGRAM_NAME Version $PROGRAM_VERSION"
+	xecho "Exporter"
+	xecho "Your microphone will be exported to: $export_dir"
 	if [[ ! -d "$export_dir" ]] ; then
-		echo "But path does not exists, aparently."
+		xecho "But path does not exists, aparently."
 		read -p "Would you like to create it? y/n"
 		case "$REPLY" in
 			y|yes|si)
@@ -195,7 +203,7 @@ EOF
 				fi
 			;;
 			*)
-				echo "Ok. Cancelled then."
+				xecho "Ok. Cancelled then."
 				exit 0
 			;;
 		esac
@@ -203,8 +211,8 @@ EOF
 	filename="microphone-as-of-$(date +%Y%m%dT%H%M%S).txt"
 	touch "$export_dir/$filename"
 	cat "$MICDIR/$MICFILE" >> "$export_dir/$filename"
-	echo "Done"
-	echo "If you'd like to clear your microphone run di --build --force"
+	xecho "Done"
+	xecho "If you'd like to clear your microphone run di --build --force"
 }
 di(){
 	case $- in
@@ -213,11 +221,11 @@ di(){
 	esac
 	case "$1" in
 		--version)
-			echo " $PROGRAM_NAME V. $PROGRAM_VERSION "
+			xecho " $PROGRAM_NAME V. $PROGRAM_VERSION "
 			exit 0
 		;;
 		--help)
-			cat <<EOF
+			helpt=$(cat <<EOF
 LKSO'S $PROGRAM_NAME V.$PROGRAM_VERSION
 ________
 ~~~~++++_________
@@ -243,6 +251,8 @@ Usage:
 		Observes the microphone file, using the program tail.
 	di --see
 		Opens the microphone file for you to see using less.
+	di --last
+		Returns the last line of the microphone passed by di --see internal filter
 	di --export [export dir]
 		Attempts to export your mic to the export dir
 	di --build
@@ -258,9 +268,12 @@ Usage:
 		If there is no directories or microphone file, then this
 		invocation will be useless.
 EOF
+)
+			xecho "$helpt"
 		;;
 		--watch) watch_mic; ;;
 		--see) see_mic;;
+		--last) xecho "$(see_mic | tail -n 1)";;
 		--build)
 			case "$2" in
 				--force) build_micdir --force; ;;
@@ -288,14 +301,14 @@ EOF
 }
 function di_siempre(){
 	[[ -x "$(command -v clear)" ]] && clear
-	echo " [ $(whoami) LIVE MIC ] \
+	xecho " [ $(whoami) LIVE MIC ] \
 Say whatever you like.
 (quit exits program)
 	" >&1
 	while true; do
 		read -p "º\$ "
 		case "$REPLY" in
-			--quit|quit|q|sal|exit|salir|salga|bye) echo "Bai!" >&1 && exit 0; ;;
+			--quit|quit|q|sal|exit|salir|salga|bye) xecho "Bai!" >&1 && exit 0; ;;
 			clear)
 				clear
 			;;

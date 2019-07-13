@@ -33,6 +33,9 @@ usage:
 	revmalo (your arguments)	Reverses your arguments without using the program rev
 					No te pongas triste because this is going to be a non-efficient
 					program yet it is only to test bash.
+
+	revmalo codigo alv		Shows the source code of this program which is written in bash.
+
 	revmalo --version 		Shows revmalo version.
 	revmalo --help 			Shows this screen.
 EOF
@@ -53,6 +56,17 @@ EOF
 				;;
 			esac
 		done
+	;;
+	codigo)
+		case "$2" in
+			alv)
+				test -x "$(command -v codigo)" && codigo de revmalo && exit
+				echo "E: El programa codigo no está disponible y estamos tristes" >&2
+			;;
+			*)
+				run "codigo alv"
+			;;
+		esac
 	;;
 	*)
 		for i in "$@" ; do

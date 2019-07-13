@@ -110,7 +110,21 @@ quien(){
 			done
 			exit 0
 		;;
-		*) quien --help; ;;
+		*)
+			if [[ -z "$1" ]] ; then
+				xecho "Tú"
+			else
+				quien --help
+			fi
+
+		;;
 	esac
+}
+xecho(){
+	if [[ -x "$(command -v lolcat)" ]] ; then
+		echo "$@" | lolcat
+	else
+		echo "@"
+	fi
 }
 quien "$@"

@@ -43,7 +43,7 @@ xolocert(){
 				echo "Error. File $HOME/XCRT is present" >&2
 				exit 1
 			fi
-			UUID="$(cat /dev/urandom | tr -dc '0-9a-f' | fold -w 16 | head -n 1)"
+			UUID="$(cat /dev/urandom | tr -dc '0-9a-f' | fold -w 16 | head -n 1 | sed -e 's/\(........\)\(....\)\(....\)\(....\)\(............\)/\1-\2-\3-\4-\5/')"
 			GRAPH_LINES="$(( $XCRT_LINES-2 ))"
 			touch "$HOME/XCRT"
 			echo "### $PROGRAM_NAME $PROGRAM_VERSION - XCRT $UUID ###" >> "$HOME/XCRT"

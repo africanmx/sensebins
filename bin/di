@@ -14,11 +14,11 @@
 ## IN THE SOFTWARE.
 
 PROGRAM_NAME="Di"
-PROGRAM_VERSION="0.5"
+PROGRAM_VERSION="0.6"
 ### Changeset
 ### 0.3-0.4 Added xtail with lolcat
 ### 0.4-0.5 Added --last option, and xecho fn
-
+### 0.5-0.6 Removed xolocert lksoid length check
 MEDKLOGIN=1
 MICDIR="$HOME/lkso.data/di.d"
 MICFILE=".kmicko.txt"
@@ -40,9 +40,7 @@ function xolocertini(){
 	if [ -x "$(command -v xolocert)" ] ; then
 		tryf="$(xolocert lksoid)"
 		if [[ ! -z "$tryf" ]] ; then
-			if [[ "${#tryf}" -eq 64 ]] ; then
-				MEDKLOGIN="$tryf"
-			fi
+			MEDKLOGIN="$tryf"
 		fi
 	fi
 }

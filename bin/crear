@@ -14,8 +14,10 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="Crear"
-PROGRAM_VERSION="0.2.4"
+PROGRAM_VERSION="0.2.6"
 ### Changeset
+### # 0.2.5 to 0.2.6 added the xecho function to make it funnier using lolcat if available, also added dynamic copyrights
+### # 0.2.4 to 0.2.5 added chmod +x and chown root:root at the end
 ### # 0.2.3 to 0.2.4 added clear to console, added separated run function, added program title and version to help
 PROGRAM_REQUIREMENTS=$(cat <<EOF
 mkdir
@@ -24,10 +26,11 @@ nano
 whoami
 EOF
 )
+read -p "Your name, please? It is for the copyrights. Name = " PROVIDED_NAME
 PROGRAM_LICENSE=$(cat <<EOF
 #!/bin/bash
 ##
-## Copyright 2019 Luis_Pulido_Diaz
+## Copyright $(date +%Y) $PROVIDED_NAME
 ##
 ## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
 ## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
@@ -83,8 +86,15 @@ function crear_el_programa(){
 	if [[ ! -d "$HOME/bin" ]] ; then
 		sudo mkdir "$HOME/bin"
 	fi
+
+	read -p "A ver. Que hace tu programa? Escribe a continuacion el help message para tus usuarios: " HELP_MESSAGE
+
 	sudo touch "$HOME/bin/$1"
 	sleep 0.7
+
+### IMPORTANT: PLEASE DO NOT TOUCH FROM HERE, UNTIL THE FOLLOWING ADVICE, SINCE IT IS A TRICKY AND DELICATE WAY IN WHICH
+### THIS SCRIPT/PROGRAM CREATES ANOTHER PROGRAM. THIS HAS EMBEDDED CODE THAT CREATES CODE
+
 	PROGRAM_TEMPLATE=$(cat <<EOF
 $PROGRAM_LICENSE
 PROGRAM_NAME="$1"
@@ -94,17 +104,23 @@ PROGRAM_VERSION="0.1"
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
+xecho(){
+	test -x "\$(command -v lolcat)" && echo "\$@" | lolcat && return
+	echo "\$@"
+}
 $1(){
 	case "\$1" in
-		--version) echo "\$PROGRAM_VERSION"; ;;
+		--version) xecho "\$PROGRAM_VERSION"; ;;
 		--help)
 			cat <<EOF
 
 \$PROGRAM_NAME
    Version \$PROGRAM_VERSION
 
-usage:
-	$1					Replace this with your stuff
+$HELP_MESSAGE
+
+other options:
+
 	$1 --version 		Shows $1 version.
 	$1 --help 			Shows this screen.
 EOF
@@ -116,7 +132,7 @@ EOF
 			read -p "\$PROGRAM_NAME\$CONSOLE_THINGY"
 			case "\$REPLY" in
 				q|quit|exit|sal|salir)
-					echo "Bye"
+					xecho "Bye"
 					exit 0
 				;;
 				clear|cls)
@@ -136,20 +152,41 @@ EOF
 run(){
 	### This is your program's main function. Replace this code
 	### with the logic of your program.
-	echo "Program \$PROGRAM_NAME was out of the oven at $(date) "
-	echo "Still unimplemented"
+	xecho "Program \$PROGRAM_NAME was out of the oven at $(date) "
+	xecho "Still unimplemented"
 }
 $1 "\$@"
 EOF
 )
-	tmpfile="$(cat /proc/sys/kernel/random/uuid)"
+
+
+### ATTENTION, THIS IS THE END OF THE MUTANT CODE BLOCK. DO NOT EDIT ANY CODE THAT IS
+### BETWEEN THIS ATTENTION MESSAGE AND THE PREVIOUS ONE
+
+	tmpfile="$(cat /dev/urandom | tr -dc '0-9a-z' | fold -w 32 | head -n 1)"
 	touch "$HOME/.$tmpfile"
 	echo "$PROGRAM_TEMPLATE" >> "$HOME/.$tmpfile"
 	echo "EOF" >> "$HOME/.$tmpfile"
 	echo "$PROGRAM_TEMPLATE_2" >> "$HOME/.$tmpfile"
 	sudo mv "$HOME/.$tmpfile" "$HOME/bin/$1"
 	sleep 0.7
+	sudo chown root:root "$HOME/bin/$1" # todos los programas son de mr root #
 	sudo nano "$HOME/bin/$1"
+	read -p "Done. Make executable now? y/n "
+	case "$REPLY" in
+		y|yes)
+			sudo chmod +x "$HOME/bin/$1"
+		;;
+		*) ;;
+	esac
+	read -p "Run \"$HOME/bin/$1 --help\" now? y/n "
+	case "$REPLY" in
+		y|yes)
+			bash -c "$HOME/bin/$1 --help"
+		;;
+		*) ;;
+	esac
+	echo "Thanks for running $PROGRAM_NAME Version $PROGRAM_VERSION ;) Bye!"
 }
 crear(){
 	if [[ -p /dev/stdin ]]; then

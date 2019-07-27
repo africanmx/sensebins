@@ -14,7 +14,9 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="auuid"
-PROGRAM_VERSION="0.1"
+PROGRAM_VERSION="0.2"
+### changeset
+### # 0.1-0.2 added dummy auuid for when unavailable. now it burns one uuid but we do not care
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
@@ -41,14 +43,18 @@ EOF
 					exit 0
 				;;
 				*)
-					 cat /proc/sys/kernel/random/uuid
+					run
 				;;
 			esac
 		done
 	;;
 	*)
-		 cat /proc/sys/kernel/random/uuid
+		run
 	;;
 	esac
+}
+run(){
+	test -f /proc/sys/kernel/random/uuid && cat /proc/sys/kernel/random/uuid && return
+	cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 31 | head -n 1 | sed -e 's/\(........\)\(....\)\(...\)\(....\)\(............\)/\1-\2-4\3-\4-\5/'
 }
 auuid "$@"

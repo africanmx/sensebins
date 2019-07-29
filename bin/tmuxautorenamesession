@@ -1,0 +1,69 @@
+#!/bin/bash
+################################################################
+PROGRAM_NAME="Tmux Auto Rename Session"
+PROGRAM_VERSION="0.2.0"
+TMUX_SOCKET="$HOME/.tmuxsocket"
+PROGRAM_HELP=$(cat <<EOF
+Usage:
+	tmuxautorenamesession			Will rename current session to a uuid
+	tmuxautorenamesession -c xxxx		Will rename current session to xxxx where xxxx is desired name
+	tmuxautorenamesession -ca xxxx		Will rename current session to xxxx-uuid where xxxx is desired initial string
+	tmuxautorenamesession --help
+	tmuxautorenamesession --version
+EOF
+)
+
+## experimental: will check if uuid is not installed and install ##
+if [[ ! -x "$(command -v uuid)" ]] ; then
+	read -p "uuid program not installed. install now?"
+	case "$REPLY" in
+		y|Y|yes|Yes|YES)
+			sudo apt update && sudo apt install uuid
+		;;
+		*)
+			echo "Ok, bye"
+			exit
+		;;
+	esac
+fi
+
+tmuxautorenamesession(){
+	case "$1" in
+		--version)
+			echo "$PROGRAM_NAME Version $PROGRAM_VERSION"
+		;;
+		--version-real)
+			echo "$PROGRAM_VERSION"
+		;;
+		--help)
+			$0 --version
+			echo "$PROGRAM_HELP"
+		;;
+		*)
+			if [[ -z "$(pgrep tmux)" ]] ; then
+				echo "E: Tmux is not running" >&2
+				exit
+			fi
+			if [[ ! -x "$(command -v aauuid)" ]] ; then
+				echo "E: aauuid is not available" >&2
+				exit
+			fi
+			set -e
+			if [[ -z "$TMUX" ]] ; then
+				echo "E: TMUX env var is not here. We think you are not inside Tmux" >&2
+				exit
+			fi
+			case "$1" in
+				-c) newname="$2"; ;;
+				-ca) newname="$2-$(uuid -v 4)"; ;;
+				*) newname="$(uuid -v 4)"; ;;
+			esac
+			if [[ -n "$(tmux -S $TMUX_SOCKET ls)" ]] ; then
+				tmux -S "$TMUX_SOCKET" rename-session -t "$(tmux -S $TMUX_SOCKET ls | head -n 1 | awk '{print $1}' | tr -d ':')" "$newname"
+			else
+				tmux rename-session -t "$(tmux ls | head -n 1 | awk '{print $1}' | tr -d ':')" "$newname"
+			fi
+		;;
+	esac
+}
+tmuxautorenamesession "$@"

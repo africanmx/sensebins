@@ -35,7 +35,7 @@ function creo_version(){
 }
 
 function creo_help(){
-	cat <<EOF
+	ZEN=$(cat <<EOF
 
    $PROGRAM_HELP Version $PROGRAM_VERSION
    _
@@ -53,6 +53,12 @@ Usage:
 	creo --version
 	creo --help
 EOF
+)
+	xecho "$ZEN"
+}
+xecho(){
+	test -x "$(command -v lolcat)" && echo "$@" | lolcat && return
+	echo "$@"
 }
 orar_siempre(){
 	clear

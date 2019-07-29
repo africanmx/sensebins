@@ -174,14 +174,14 @@ EOF
 	sudo nano "$HOME/bin/$1"
 	read -p "Done. Make executable now? y/n "
 	case "$REPLY" in
-		y|yes)
+		y|yes|Y|YES|Yes)
 			sudo chmod +x "$HOME/bin/$1"
 		;;
 		*) ;;
 	esac
 	read -p "Run \"$HOME/bin/$1 --help\" now? y/n "
 	case "$REPLY" in
-		y|yes)
+		y|yes|Y|YES|Yes)
 			bash -c "$HOME/bin/$1 --help"
 		;;
 		*) ;;

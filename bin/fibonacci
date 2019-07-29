@@ -14,7 +14,9 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="fibonacci"
-PROGRAM_VERSION="0.1"
+PROGRAM_VERSION="0.2"
+### # changeset
+### # 0.1-0.2 added colors
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
@@ -95,7 +97,10 @@ run(){
 		arr+=($res)
 	done
 	if [ -z "$verbose" ] ; then
-		echo "$res"
+		xecho "$res"
 	fi
+}
+xecho(){
+	test -x "$(command -v lolcat)" && echo "$@" | lolcat || echo "$@"
 }
 fibonacci "$@"

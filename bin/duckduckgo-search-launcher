@@ -71,7 +71,7 @@ EOF
 			### this is nasty on purpose ###
 			query="$2"
 			for i in "${@:3}"; do
-				sanitized="$( echo $i | tr -dc 'a-zA-Z0-9\-\+' )"
+				sanitized="$( echo $i | tr -dc 'a-zA-Z0-9\-\+\:\-\_\~\,\.\?\!' )"
 				query="$query+$sanitized"
 			done
 			url="$PROGRAM_URL_PRESTRING$query$PROGRAM_URL_POSTSTRING"

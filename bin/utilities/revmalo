@@ -14,12 +14,16 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="revmalo"
-PROGRAM_VERSION="0.1"
+PROGRAM_VERSION="0.2"
+### # changeset # ###
+# 0.1-0.2 has the codigo program auto installer
+### # ######### # ###
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
+URL_DE_CODIGO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/codigo"
 revmalo(){
 	case "$1" in
 		--version) echo "$PROGRAM_VERSION"; ;;
@@ -62,6 +66,25 @@ EOF
 			alv)
 				test -x "$(command -v codigo)" && codigo de revmalo && exit
 				echo "E: El programa codigo no está disponible y estamos tristes" >&2
+				echo "Sin embargo, te tenemos noticias. Adivina que"
+				echo "El programa codigo lo podemos instalar ahorita mismo"
+				read -p "Quieres? s/n "
+				case "$REPLY" in
+					s*|S*)
+						(
+							cd $(dirname $0)
+							echo "Downloadeando..."
+							test -z "$(which curl)" && echo "Sabes? Ni curl tienesss" && exit 1
+							curl -O "$URL_DE_CODIGO" 2>/dev/null
+							chmod +x codigo
+							test -x "$(command -v codigo)" && echo "Listo! Ya tienes codigo Version $(codigo --version)" || echo "Creo que no se instalo bien"
+						)
+					;;
+					*)
+						echo "Ok no"
+						exit
+					;;
+				esac
 			;;
 			*)
 				run "codigo alv"

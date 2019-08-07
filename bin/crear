@@ -14,8 +14,9 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="Crear"
-PROGRAM_VERSION="0.2.6"
+PROGRAM_VERSION="0.2.7"
 ### Changeset
+### # 0.2.6 to 0.2.7 removed the todos los programas son the root filosofia
 ### # 0.2.5 to 0.2.6 added the xecho function to make it funnier using lolcat if available, also added dynamic copyrights
 ### # 0.2.4 to 0.2.5 added chmod +x and chown root:root at the end
 ### # 0.2.3 to 0.2.4 added clear to console, added separated run function, added program title and version to help
@@ -84,7 +85,7 @@ function crear_el_programa(){
 		exit 1
 	fi
 	if [[ ! -d "$HOME/bin" ]] ; then
-		sudo mkdir "$HOME/bin"
+		mkdir "$HOME/bin"
 	fi
 
 	read -p "A ver. Que hace tu programa? Escribe a continuacion el help message para tus usuarios: " HELP_MESSAGE
@@ -155,11 +156,22 @@ run(){
 	xecho "Program \$PROGRAM_NAME was out of the oven at $(date) "
 	xecho "Still unimplemented"
 }
+EOF
+)
+final_part=$(cat <<EOF
 $1 "\$@"
 EOF
 )
-
-
+final_part_console=$(cat <<EOF
+test -n "\$1" && $1 "\$@" || $1 --console
+EOF
+)
+read -p "Is it going to be a console default program? y/n "
+case "$REPLY" in
+	y|Y|yes|Yes)
+		final_part="$final_part_console"
+	;;
+esac
 ### ATTENTION, THIS IS THE END OF THE MUTANT CODE BLOCK. DO NOT EDIT ANY CODE THAT IS
 ### BETWEEN THIS ATTENTION MESSAGE AND THE PREVIOUS ONE
 
@@ -168,9 +180,9 @@ EOF
 	echo "$PROGRAM_TEMPLATE" >> "$HOME/.$tmpfile"
 	echo "EOF" >> "$HOME/.$tmpfile"
 	echo "$PROGRAM_TEMPLATE_2" >> "$HOME/.$tmpfile"
+	echo "$final_part" >> "$HOME/.$tmpfile"
 	sudo mv "$HOME/.$tmpfile" "$HOME/bin/$1"
 	sleep 0.7
-	sudo chown root:root "$HOME/bin/$1" # todos los programas son de mr root #
 	sudo nano "$HOME/bin/$1"
 	read -p "Done. Make executable now? y/n "
 	case "$REPLY" in
@@ -216,4 +228,4 @@ crear(){
 		;;
 	esac
 }
-crear "$@"
+test -n "$1" && crear "$@" || $0 --help

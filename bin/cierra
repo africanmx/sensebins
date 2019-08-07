@@ -14,8 +14,11 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="cierra"
-PROGRAM_VERSION="0.3"
+PROGRAM_VERSION="0.4"
 ### CHANGESET
+### # 0.3-0.4 Moved from kill -9 to pkill. I really did not know that pkill existed :(
+###           and so I just left this program because of the nostalgia. Also, added the
+###           copycat ability to count the running processes with the -c option.
 ### # 0.2-0.3 Decoupled gender by adding alternative word la and las, as well as english
 ###           compatibility for people linking to an english word like close or something.
 ###           Also, the last chantset was never added sorry for that. I am cancelling it
@@ -27,14 +30,13 @@ PROGRAM_VERSION="0.3"
 ## better esthetics in the console.
 CONSOLE_THINGY="> "
 cierra_el_programa(){
-	for i in "$(ps aux | grep "$1" | head -n -1 | awk '{print $2}')"; do
-		kill -9 $i
-	done
+	pkill "$1"
+}
+cuantos(){
+	echo "$(( $(ps aux | grep $1 | wc -l) - 1))"
 }
 cierra_los_programas(){
-	for i in "$@"; do
-		cierra_el_programa "$i"
-	done
+	cierra_el_programa "$@"
 }
 cierra(){
 	case "$1" in
@@ -55,9 +57,13 @@ cierra(){
 usage:
 	$0 (el la the) (programa program) [xxx]		Attempts to kill all instances of program xxx.
 	$0 (los las all) (programas) [xxx..]		Attempts to kill all instances of the programs xxx...
+	$0 -c [xxx]					Tells you the number of running processes of xxx...
 	$0 --version 					Shows cierra version.
 	$0 --help 					Shows this screen.
 EOF
+	;;
+	--c|-c|c)
+		cuantos "$2"
 	;;
 	--console)
 		while [[ true ]] ; do

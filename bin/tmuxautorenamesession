@@ -1,8 +1,9 @@
 #!/bin/bash
+# LICENSE=DWTFYW
 ################################################################
 PROGRAM_NAME="Tmux Auto Rename Session"
 PROGRAM_VERSION="0.2.0"
-TMUX_SOCKET="$HOME/.tmuxsocket"
+TMUX_SOCKET="/tmp/tmux-1000/default"
 PROGRAM_HELP=$(cat <<EOF
 Usage:
 	tmuxautorenamesession			Will rename current session to a uuid
@@ -58,7 +59,7 @@ tmuxautorenamesession(){
 				-ca) newname="$2-$(uuid -v 4)"; ;;
 				*) newname="$(uuid -v 4)"; ;;
 			esac
-			if [[ -n "$(tmux -S $TMUX_SOCKET ls)" ]] ; then
+			if [[ -n "$(tmux -S $TMUX_SOCKET ls 2>/dev/null)" ]] ; then
 				tmux -S "$TMUX_SOCKET" rename-session -t "$(tmux -S $TMUX_SOCKET ls | head -n 1 | awk '{print $1}' | tr -d ':')" "$newname"
 			else
 				tmux rename-session -t "$(tmux ls | head -n 1 | awk '{print $1}' | tr -d ':')" "$newname"

@@ -14,14 +14,19 @@
 ## IN THE SOFTWARE.
 
 PROGRAM_NAME="Di"
-PROGRAM_VERSION="0.6"
+PROGRAM_VERSION="1.1"
 ### Changeset
 ### 0.3-0.4 Added xtail with lolcat
 ### 0.4-0.5 Added --last option, and xecho fn
 ### 0.5-0.6 Removed xolocert lksoid length check
+### 0.6-0.7 Changed format
+### 0.7-0.8 Added undo to the console
+### 0.8-0.9 Added a WIP: say to someone something
+### 0.9-1.1 Added nano timestamp
 MEDKLOGIN=1
 MICDIR="$HOME/lkso.data/di.d"
 MICFILE=".kmicko.txt"
+LANG="en_US.UTF-8"
 xtail(){
 	if [[ -x "$(command -v lolcat)" ]] ; then
 		tail "$@" | lolcat
@@ -119,13 +124,55 @@ function say(){
 	if [[ ! -f "$MICDIR/$MICFILE" ]] ; then
 		build_micdir
 	fi
-	case "$1" in
-		que) allst="${@:2}"; ;;
-		*) allst="$@";;
+	allst="$@"
+	case "$(basename $0)" in
+		say)
+			case "$1" in
+				that) allst="${@:2}"; ;;
+				to)
+					message_to="$2"
+					allst="${@:3}"
+					case "$3" in
+						that) allst="${@:4}"; ;;
+					esac
+				;;
+			esac
+		;;
+		di)
+			case "$1" in
+				que) allst="${@:2}"; ;;
+				a)
+					message_to="$2"
+					allst="${@:3}"
+					case "$3" in
+						que) allst="${@:4}"; ;;
+					esac
+				;;
+			esac
+		;;
+		*) ;;
 	esac
-	echo "$(whoami) [$(date)] :: $allst " >> "$MICDIR/$MICFILE"
-	xecho " $allst fue dicho."
+	trys="$( echo $@ | tr -dc 'a-zA-Z0-9\+\,\-\_\#\!\?' )"
+	echo "[$(whoami)] [$(date +%s.%N)] [ $allst ]" >> "$MICDIR/$MICFILE"
+	test "$(basename $0)" == "di" && xecho " $allst fue dicho." || xecho " $allst has been said."
+	test -n "$message_to" && xecho " to $message_to, but not implemented yet" && message_to "$message_to" "$allst"
 	return 0
+}
+exit_because(){
+	echo "$@" >&2
+	exit 1
+}
+message_to(){
+	mkdir -p "$MICDIR/outbox"
+	test -d "$MICDIR/outbox" || exit_because "Outbox could not be created. Try with sudo"
+	timestamp="$(date +%Y-%m-%d_%H%M%S)"
+	file="$MICDIR/outbox/message-$timestamp.outmessage"
+	touch "$file"
+	test -f "$file" || exit_because "Message could not be created at outbox"
+	echo "from: $(whoami)" >> "$file"
+	echo "to: $towho" >> "$file"
+	echo "message:" >> "$file"
+	echo "$message" >> "$file"
 }
 function see_mic(){
 	MICFILE="$MICDIR/$MICFILE"
@@ -224,12 +271,22 @@ di(){
 		;;
 		--help)
 			helpt=$(cat <<EOF
+
 LKSO'S $PROGRAM_NAME V.$PROGRAM_VERSION
+
 ________
 ~~~~++++_________
 ~~~~~~~+++++++++++
-M i c r ó f o n o n s k y  ... A n t i p r i v a c i d a d
-     Version Nudista $PROGRAM_VERSION
+
+M i c r o f o n o n s k y  ... A n t i p r i v a c i d a d
+     Version $PROGRAM_VERSION
+
+
+	TL;DR: Use it like this:
+		$0 bla bla bla bla			To say something
+		$0 que bla bla bla			To say bla bla bla
+		$0 a who que bla bla bla		Attempts to say to who, bla bla bla (but it is a WIP for now)
+
 
 Usage:
 	di --help
@@ -242,7 +299,7 @@ Usage:
 	di --siempre
 		Runs microphone forever ;)
 	di --undo
-		Erases the last think you said printing it out for the
+		Erases the last thing you said printing it out for the
 		last time.
 		So you can apply it to your strong languages.
 	di --watch
@@ -310,10 +367,17 @@ Say whatever you like.
 			clear)
 				clear
 			;;
+			undo)
+				say --undo
+			;;
+			"\undo")
+				say "undo"
+			;;
 			*)
 				say "$REPLY"
 			;;
 		esac
 	done
 }
-di "$@"
+test -n "$1" && di "$@" || $0 --help
+

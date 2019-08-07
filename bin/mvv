@@ -1,0 +1,268 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+PROGRAM_NAME="Mvv"
+PROGRAM_VERSION="0.1.movil"
+LICENSE=$(cat <<EOF
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+EOF
+)
+
+PLACED="$HOME/lkso.data/$PROGRAM_NAME"
+PLACEDD="$PLACED/places.d"
+PLACEF="$PLACED/.placesfile"
+
+KEYF=".spkey.pem"
+PKEYF=".ppkey.pem"
+
+## for longer messages, a workaround for single rsa calls can be investigated
+MESSAGE_MAX_LENGTH=115
+
+ask_for_uuid(){
+	read -p "uuid program not installed. install now? y/n "
+	case "$REPLY" in
+		y|Y|yes|Yes|YES)
+			sudo apt install uuid
+			sudo apt update
+			sudo apt install -y uuid
+		;;
+		*)
+			echo "No podemos continuar entonces"
+			exit
+		;;
+	esac
+}
+
+if [[ ! -x "$(command -v uuid)" ]] ; then
+	ask_for_uuid
+fi
+
+place(){
+	case "$1" in
+		--version) echo "$PROGRAM_VERSION"; ;;
+		--help)
+			cat <<EOF
+
+$PROGRAM_NAME
+   Version $PROGRAM_VERSION
+
+	This is a program in test. Current known bug is length of data. You can encrypt a message with a max length of ~112 characters.
+
+	Installation:
+		Once you have $0 available, you need to generate your key pair to start encrypting and decyrpting messages.
+		To do so, execute the program once like this:
+			$0 --build
+		If you do not want to be prompted (i.e. for scripting purposes), you can call it  like this:
+			$0 --build --force
+
+		It is important for you to know that if you run the --build, the program will replace your key pair with a new one, and thus
+		all previous encrypted messages will not be able to be decrypted unless you have a copy of the keys.
+		As for now, this program does not have the option to restore keys or to use custom keys to decrypt messages. If you want to recover
+		encrypted messages with different keys, you could manually replace them and use this program normally. Probably doing it in a different
+		directory would be the best option.
+		If you could add this last described functionality to this program please share it as a pull request so we can integrate those changes
+		to the repository.
+
+
+	The encrypted messages can be thought as a LIFO queue. Executing with "p" and "nd", will delete the message that is being displayed.
+
+	Usage:
+		mvv s [your message]		Saves your message, encrypted
+		mvv l				Prints the last message, decrypted
+		mvv p				Pops the last message, decrypted
+		mvv n				Prints the n'th message, decrypted
+						The messages are ordered from newest to oldest, and they start with number 1
+		mvv nd				Prints the n'th message and deletes it afterwards. After this happens, all
+						oldest messages positions are moved up by one. If you call again the program
+						with the "n" option, then it will print the message that took place once the
+						other one was removed
+
+		mvv --pop-all			With confirmation from the user, it pops all the encrypted messages and leaves the program empty.
+		mvv --pop-all --force		Performs the "mvv --pop-all" without a user's confirmation.
+
+	mvv --version 		Prints $PROGRAM_NAME version.
+	mvv --help 			Prints this screen.
+EOF
+	;;
+	*)
+		run "$@"
+	;;
+	esac
+}
+check_placef(){
+	if [[ ! -d "$PLACEDD" ]] ; then
+		messagestr=$(cat <<EOF
+Error: Program $0 has not been initialized. Please run $0 --build or $0 --build --force
+so the program can self-configure. This will generate a key pair which will be used to
+encrypt and decrypt the messages. If they are deleted or replaced, all messages that have
+been previously encrypted with them will then not be able to be decrypted without them.
+EOF
+)
+		echo "$messagestr" >&2
+		exit
+	fi
+}
+encrypt(){
+	if [[ ! -f "$PLACED/$KEYF" ]] ; then
+		echo "E: Key file is not present" >&2
+		echo "   Try creating the pair with --build" >&2
+		exit 1
+	fi
+	tmpfile="$PLACED/$(uuid -v 4).txt"
+	touch "$tmpfile"
+	echo "$@" >> "$tmpfile"
+	key="$(<$PLACED/$KEYF)"
+	finalfile="$PLACEDD/$(uuid -v 4).dat"
+	openssl rsautl -encrypt -inkey "$PLACED/$PKEYF" -pubin -in "$tmpfile" -out "$finalfile"
+	rm "$tmpfile"
+}
+decrypt(){
+	if [[ ! -f "$PLACED/$KEYF" ]] ; then
+		echo "E: Key file is not present" >&2
+		echo "   Try creating the pair with --build" >&2
+		echo "   It is important for you to know that for existing messages" >&2
+		echo "   instead of creating a new key pair you will need to add in place" >&2
+		echo "   the corresponding keys or otherwise an error will be displayed" >&2
+		echo "   when trying to decrypt them" >&2
+		exit 1
+	fi
+	tmpfile="$PLACED/$(uuid -v 4).dat"
+	openssl rsautl -decrypt -inkey "$PLACED/$KEYF" -in "$1" -out "$tmpfile"
+	echo "$(<$tmpfile)"
+	rm "$tmpfile"
+}
+build(){
+	if [[ ! -x "$(command -v openssl)" ]] ; then
+		echo "E: This program requires openssl" >&2
+		exit 1
+	fi
+	mkdir -p "$PLACED"
+	openssl genrsa -out "$PLACED/$KEYF" 1024 >/dev/null 2>&1
+	openssl rsa -in "$PLACED/$KEYF" -out "$PLACED/$PKEYF" -outform PEM -pubout >/dev/null 2>&1
+	mkdir -p "$PLACEDD"
+}
+check_empty(){
+	tryn="$(ls -l $PLACEDD | grep .dat | wc -l)"
+	if [[ "$tryn" -lt 1 ]] ; then
+		echo "Places program is empty" >&2
+		exit
+	fi
+}
+run(){
+	case "$1" in
+		--build)
+			case "$2" in
+				--force) ;;
+				*)
+					read -p "Build now? y/n "
+					case "$REPLY" in
+						y|yes) ;;
+						n|no)
+							echo "Bye"
+							exit 0
+						;;
+					esac
+				;;
+			esac
+			build
+			echo "Done"
+		;;
+		s)
+			check_placef
+			if [[ -z "$2" ]] ; then
+				echo "Message can not be empty" >&2
+				exit
+			fi
+			trys="${@:2}"
+			if [[ "${#trys}" -gt "$MESSAGE_MAX_LENGTH" ]] ; then
+				echo "Message's max length is $MESSAGE_MAX_LENGTH characters" >&2
+				exit
+			fi
+			encrypt "$trys"
+			echo "Done"
+		;;
+		l)
+			check_placef
+			check_empty
+			filename="$(ls -ltr $PLACEDD/*.dat | tail -n 1 | awk '{print $9}')"
+			decrypt "$filename"
+			case "$2" in
+				-p)
+					rm "$filename"
+				;;
+				*) ;;
+			esac
+		;;
+		p)
+			$0 l -p
+		;;
+		--pop-all)
+			check_placef
+			case "$2" in
+				--force) ;;
+				*)
+					read -p "Sure? y/n "
+					case "$REPLY" in
+						y|yes) ;;
+						*)
+							echo "Ok, bye"
+							exit
+						;;
+					esac
+				;;
+			esac
+			while [[ -n "$($0 l 2>/dev/null)" ]] ; do
+				$0 p
+			done
+		;;
+		n)
+			check_placef
+			maxn="$(ls -l $PLACEDD | grep .dat | wc -l)"
+			if [[ "$2" -gt "$maxn" || "$2" -lt 1 ]] ; then
+				echo "E: Max number is $maxn" >&2
+				exit
+			fi
+			file="$(ls -ltr $PLACEDD/*.dat | tail -n $2 | head -n 1 | awk '{print $9}')"
+			decrypt "$file"
+			case "$3" in
+				-d)
+					rm "$file"
+				;;
+				*) ;;
+			esac
+		;;
+		nd)
+			$0 n "$2" -d
+		;;
+		*)
+			test "$(basename $0)" == "mvv" && echo "MVV" && test -x "$(command -v mvvcount)" && mvvcount a >/dev/null || $0 --help
+		;;
+	esac
+}
+place "$@"
+

@@ -14,7 +14,7 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="el"
-PROGRAM_VERSION="0.1"
+PROGRAM_VERSION="0.1000"
 ## Replace the > in the CONSOLE_THINGY
 ## with your own string like ~$ or ~#
 ## or whatever need. Leave a space for
@@ -75,6 +75,19 @@ EOF
 	*)
 		case "$2" in
 			corre?|corre)
+				case "$3" in
+					en)
+						case "$4" in
+							este)
+								case "$5" in
+									momento|momento?)
+										isitrunning "$1"
+									;;
+								esac
+							;;
+						esac
+					;;
+				esac
 				isitrunning "$1"
 			;;
 			esta|"está"|anda)

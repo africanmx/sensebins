@@ -50,7 +50,7 @@ EOF
 	;;
 	*)
 		xinput disable "$X"
-		echo "Se fue el $X para de tu ser"
+		echo "Se fue el $X de tu ser"
 		if [[ -x "$(command -v cual)" ]] ; then
 			echo " Recuerda que el sentido de la vida es "
 			cual es el sentido de la vida?

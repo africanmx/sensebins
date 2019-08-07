@@ -13,57 +13,76 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
 ## IN THE SOFTWARE.
 ##
-PROGRAM_NAME="ranbasho"
+PROGRAM_NAME="mvvcount"
 PROGRAM_VERSION="0.1"
-## Replace the > in the CONSOLE_THINGY
-## with your own string like ~$ or ~#
-## or whatever need. Leave a space for
-## better esthetics in the console.
-CONSOLE_THINGY="> "
-BASS="$HOME/.bash_history"
-ranbasho(){
+
+PROGRAM_PATH="$HOME/lkso.data/$PROGRAM_NAME/$PROGRAM_VERSION"
+PROGRAM_FILE="$PROGRAM_PATH/.mvvcount"
+
+xecho(){
+	test -x "$(command -v lolcat)" && echo "$@" | lolcat && return
+	echo "$@"
+}
+mvvcount(){
 	case "$1" in
-		--version) echo "$PROGRAM_VERSION"; ;;
+		--version) xecho "$PROGRAM_VERSION"; ;;
 		--help)
 			cat <<EOF
 
 $PROGRAM_NAME
    Version $PROGRAM_VERSION
 
-usage:
-	ranbasho			Tells you a random line of your bash history
-	ranbasho --version 		Shows ranbasho version.
-	ranbasho --help 		Shows this screen.
+Tracks a counter and enables you to add or substract from this mono counter program.
+
+Usage:
+	$0 a	Adds 1
+	$0 s	Substracts 1
+	$0 r	Resets to 0
+	$0 l	Prints current
+
+other options:
+
+	mvvcount --version 		Shows mvvcount version.
+	mvvcount --help 		Shows this screen.
 EOF
-	;;
-	--console)
-		while [[ true ]] ; do
-			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
-			case "$REPLY" in
-				q|quit|exit|sal|salir)
-					echo "Bye"
-					exit 0
-				;;
-				clear|cls)
-					clear
-				;;
-				*)
-					run "$REPLY"
-				;;
-			esac
-		done
 	;;
 	*)
 		run "$@"
 	;;
 	esac
 }
-run(){
-	if [[ ! -f "$BASS" ]] ; then
-		touch "$BASS"
-	fi
-	limit="$(( $(cat $BASS | wc -l) - 1 ))"
-	tryn="$(( (RANDOM%$limit) + 1 ))"
-	tail -n $tryn "$BASS" | head -n 1
+build_if_not_built(){
+	test -f "$PROGRAM_FILE" && return
+	mkdir -p "$PROGRAM_PATH"
+	touch "$PROGRAM_FILE"
+	echo "0" >> "$PROGRAM_FILE"
 }
-ranbasho "$@"
+run(){
+	build_if_not_built
+	case "$1" in
+		a)
+			c="$(( $(<$PROGRAM_FILE) + 1))"
+			rm "$PROGRAM_FILE"
+			echo "$c" >> "$PROGRAM_FILE"
+			echo "$c"
+		;;
+		s)
+			c="$(( $(<$PROGRAM_FILE) - 1))"
+			rm "$PROGRAM_FILE"
+			echo "$c" >> "$PROGRAM_FILE"
+			echo "$c"
+		;;
+		r)
+			rm "$PROGRAM_FILE"
+			echo "0" >> "$PROGRAM_FILE"
+			echo "0"
+		;;
+		l)
+			cat "$PROGRAM_FILE"
+		;;
+		*)
+			$0 l
+		;;
+	esac
+}
+mvvcount "$@"

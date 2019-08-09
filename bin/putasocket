@@ -1,0 +1,66 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis Pulido Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+PROGRAM_NAME="putasocket"
+PROGRAM_VERSION="0.1"
+declare -a REQUIREMENTS=(curl python)
+xecho(){
+	test -x "$(command -v lolcat)" && echo "$@" | lolcat && return
+	echo "$@"
+}
+putasocket(){
+	case "$1" in
+		--version) xecho "$PROGRAM_VERSION"; ;;
+		--help)
+			cat <<EOF
+
+$PROGRAM_NAME
+   Version $PROGRAM_VERSION
+
+Creates a socket using Python. Installs Curl and Python if you do not have them.
+
+Usage:
+	\$ putasocket somename		Will try to create a socket with the name "somename". It accepts relative and full paths.
+other options:
+
+	putasocket --version 		Shows putasocket version.
+	putasocket --help 			Shows this screen.
+EOF
+	;;
+	*)
+		run "$@"
+	;;
+	esac
+}
+dry_install_or_die(){
+	test -x $(command -v apt) && apt update && apt install -y "$1" && return
+	test -x $(command -v yum) && yum update && yum install -y "$1" && return
+	echo "$1 could not be installed" >&2
+	exit 1
+}
+dry_install_if_needed(){
+	for i in "${REQUIREMENTS[@]}" ; do
+		test -z "$(which $i)" && dry_install_or_die "$i"
+	done
+}
+run(){
+	test -z "$1" && $0 --help && exit
+	dry_install_if_needed
+	tryd="$1"
+	test ! -d "$tryd" && tryd="$(pwd)/$1"
+	python -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('$tryd')"  2>/dev/null
+	test -S "$tryd" && echo "Done" || echo "Failed" >&2
+}
+putasocket "$@"

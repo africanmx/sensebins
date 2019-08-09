@@ -17,7 +17,7 @@ PROGRAM_NAME="instaladordexolocert"
 PROGRAM_VERSION="0.1"
 URL_DE_XOLOCERT="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/xolocert"
 PROGRAM_COMMAND="xolocert"
-LUGAR_A_INSTALAR=~/bin
+LUGAR_A_INSTALAR=/bin
 instaladordexolocert(){
 	case "$1" in
 		--version) xecho "$PROGRAM_VERSION"; ;;
@@ -69,6 +69,7 @@ comprueba_xolocert(){
 	echo "Xolocert LKSOID: $(xolocert --lksoid)"
 }
 instalar_xolocert(){
+	test -z "$(which less)" && apt update && apt install -y less
 	(
 		cd "$LUGAR_A_INSTALAR"
 		echo Descargando...

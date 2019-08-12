@@ -17,7 +17,7 @@ PROGRAM_NAME="instaladorderevmalo"
 PROGRAM_VERSION="0.1"
 URL_DE_REVMALO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/utilities/revmalo"
 PROGRAM_COMMAND="revmalo"
-LUGAR_A_INSTALAR=~/bin
+LUGAR_A_INSTALAR=$(dirname $0)
 instaladorderevmalo(){
 	case "$1" in
 		--version) xecho "$PROGRAM_VERSION"; ;;

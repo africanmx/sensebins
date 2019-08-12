@@ -43,7 +43,7 @@ xolocert(){
 				echo "Error. File $HOME/XCRT is present" >&2
 				exit 1
 			fi
-			test -z "$(which uuid)" && apt update && apt install uuid
+			test -z "$(which uuid)" && apt update && apt install -y uuid
 			UUID="$(uuid -v 4)"
 			GRAPH_LINES="$(( $XCRT_LINES-2 ))"
 			touch "$HOME/XCRT"

@@ -17,7 +17,10 @@ PROGRAM_NAME="instaladordexolocert"
 PROGRAM_VERSION="0.1"
 URL_DE_XOLOCERT="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/xolocert"
 PROGRAM_COMMAND="xolocert"
-LUGAR_A_INSTALAR=/bin
+case "$SHELL" in
+ *termux*) LUGAR_A_INSTALAR="$HOME/../usr/bin"; ;;
+ *) LUGAR_A_INSTALAR="/usr/bin"; ;;
+esac
 instaladordexolocert(){
 	case "$1" in
 		--version) xecho "$PROGRAM_VERSION"; ;;

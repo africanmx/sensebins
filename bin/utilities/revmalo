@@ -92,8 +92,8 @@ EOF
 		esac
 	;;
 	*)
-		test -p /dev/stdin && input=`cat` || input="$@"
-		run "$input"
+                read input
+                test -n "$input" && run "$input" || run "$@"
 	;;
 	esac
 }

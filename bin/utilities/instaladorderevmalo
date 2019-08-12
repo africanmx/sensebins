@@ -70,8 +70,8 @@ instalar_revmalo(){
 		echo Haciendo ejecutable...
 		chmod +x "$PROGRAM_COMMAND"
 		echo Ejecutando prueba con anitalavalatina sram norbak...
-		aver="$(echo anitalavalatina sram norbak | $PROGRAM_COMMAND)"
-		test "$aver" == "kabron mars anitalavalatina" && echo Si mira $aver || echo No jala
+		bash aver="$(echo anitalavalatina sram norbak | $PROGRAM_COMMAND)"
+		bash test "$aver" == "kabron mars anitalavalatina" && echo Si mira $aver || echo No jala
 	)
 }
 test -x "$(command -v revmalo)" && echo Ya tienes revmalo chav@ revisate && exit 0

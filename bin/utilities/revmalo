@@ -75,8 +75,16 @@ EOF
 							cd $(dirname $0)
 							echo "Downloadeando..."
 							test -z "$(which curl)" && echo "Sabes? Ni curl tienesss" && exit 1
-							curl -O "$URL_DE_CODIGO" 2>/dev/null
-							chmod +x codigo
+							case "$(dirname $0)" in
+								*/usr/bin*)
+									sudo curl -O "$URL_DE_CODIGO" 2>/dev/null
+									sudo chmod +x codigo
+								;;
+								*)
+									curl -O "$URL_DE_CODIGO" 2>/dev/null
+									chmod +x codigo
+								;;
+							esac
 							test -x "$(command -v codigo)" && echo "Listo! Ya tienes codigo Version $(codigo --version)" || echo "Creo que no se instalo bien"
 						)
 					;;

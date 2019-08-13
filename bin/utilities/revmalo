@@ -14,8 +14,9 @@
 ## IN THE SOFTWARE.
 ##
 PROGRAM_NAME="revmalo"
-PROGRAM_VERSION="0.2"
+PROGRAM_VERSION="0.3"
 ### # changeset # ###
+# 0.2-0.3 codigo installer now distinguish between usr/bin and busybox-ish
 # 0.1-0.2 has the codigo program auto installer
 ### # ######### # ###
 ## Replace the > in the CONSOLE_THINGY

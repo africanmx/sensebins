@@ -64,7 +64,7 @@ run(){
 }
 instalar_revmalo(){
 	case "$LUGAR_A_INSTALAR" in
-		*usr/bin*)
+		*)
 			(
 				cd "$LUGAR_A_INSTALAR"
 				echo "Esta instalación requiere privilegios elevados..."
@@ -74,7 +74,7 @@ instalar_revmalo(){
 				echo "Done, supuestamente. Haz revmalo --version para ver"
 			)
 		;;
-		*)
+		*termux*)
 			(
 				cd "$LUGAR_A_INSTALAR"
 				echo Descargando...

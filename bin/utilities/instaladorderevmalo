@@ -67,9 +67,9 @@ instalar_revmalo(){
 		*usr/bin*)
 			(
 				cd "$LUGAR_A_INSTALAR"
-				echo "Esto va a hacerse con sudo..."
-				sudo curl -O "$URL_DE_REVMALO"
-				echo "Descargando y haciendo ejecutable..."
+				echo "Descargando..."
+				sudo curl -O "$URL_DE_REVMALO" &>/dev/null
+				echo "Haciendo ejecutable..."
 				sudo chmod +x "$PROGRAM_COMMAND"
 				echo "Done, supuestamente. Haz revmalo --version para ver"
 			)
@@ -78,7 +78,7 @@ instalar_revmalo(){
 			(
 				cd "$LUGAR_A_INSTALAR"
 				echo Descargando...
-				curl -O "$URL_DE_REVMALO" 2>/dev/null
+				curl -O "$URL_DE_REVMALO" &>/dev/null
 				echo Haciendo ejecutable...
 				chmod +x "$PROGRAM_COMMAND"
 				echo "Done, supuestamente. Haz revmalo --version para ver"

@@ -69,9 +69,7 @@ instalar_revmalo(){
 		curl -O "$URL_DE_REVMALO" 2>/dev/null
 		echo Haciendo ejecutable...
 		chmod +x "$PROGRAM_COMMAND"
-		echo Ejecutando prueba con anitalavalatina sram norbak...
-		bash aver="$(echo anitalavalatina sram norbak | $PROGRAM_COMMAND)"
-		bash test "$aver" == "kabron mars anitalavalatina" && echo Si mira $aver || echo No jala
+                echo "Done, supuestamente. Haz revmalo --version para ver"
 	)
 }
 test -x "$(command -v revmalo)" && echo Ya tienes revmalo chav@ revisate && exit 0

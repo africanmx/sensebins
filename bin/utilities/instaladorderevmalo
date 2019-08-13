@@ -67,6 +67,7 @@ instalar_revmalo(){
 		*usr/bin*)
 			(
 				cd "$LUGAR_A_INSTALAR"
+				echo "Esta instalación requiere privilegios elevados"
 				echo "Descargando..."
 				sudo curl -O "$URL_DE_REVMALO" &>/dev/null
 				echo "Haciendo ejecutable..."

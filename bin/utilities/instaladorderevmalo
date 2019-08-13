@@ -63,14 +63,28 @@ run(){
 	esac
 }
 instalar_revmalo(){
-	(
-		cd "$LUGAR_A_INSTALAR"
-		echo Descargando...
-		curl -O "$URL_DE_REVMALO" 2>/dev/null
-		echo Haciendo ejecutable...
-		chmod +x "$PROGRAM_COMMAND"
-                echo "Done, supuestamente. Haz revmalo --version para ver"
-	)
+	case "$LUGAR_A_INSTALAR" in
+		*usr/bin*)
+			(
+				cd "$LUGAR_A_INSTALAR"
+				echo "Esto va a hacerse con sudo..."
+				sudo curl -O "$URL_DE_REVMALO"
+				echo "Descargando y haciendo ejecutable..."
+				sudo chmod +x "$PROGRAM_COMMAND"
+				echo "Done, supuestamente. Haz revmalo --version para ver"
+			)
+		;;
+		*)
+			(
+				cd "$LUGAR_A_INSTALAR"
+				echo Descargando...
+				curl -O "$URL_DE_REVMALO" 2>/dev/null
+				echo Haciendo ejecutable...
+				chmod +x "$PROGRAM_COMMAND"
+				echo "Done, supuestamente. Haz revmalo --version para ver"
+			)
+		;;
+	esac
 }
 test -x "$(command -v revmalo)" && echo Ya tienes revmalo chav@ revisate && exit 0
 test -x "$(command -v curl)" && instaladorderevmalo "$@" || echo Ni curl tienes >&2

@@ -1,4 +1,3 @@
-
 #!/bin/bash
 ##
 ## Copyright 2019 Luis_Pulido_Diaz
@@ -18,10 +17,10 @@ PROGRAM_NAME="instaladorderevmalo"
 PROGRAM_VERSION="0.2"
 URL_DE_REVMALO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/utilities/revmalo"
 PROGRAM_COMMAND="revmalo"
-declare -a PLACES=(~/../usr/bin /usr/bin /bin /sbin)
+declare -a PLACES=(~/../usr/bin /usr/bin /bin)
 LUGAR_A_INSTALAR=""
 for i in "${PLACES[@]}" ; do
-  test -d "$i" && LUGAR_A_INSTALAR="$i" && continue
+  test -d "$i" && LUGAR_A_INSTALAR="$i" && break
 done
 test ! -d "$LUGAR_A_INSTALAR" && echo "Invalid place to install $LUGAR_A_INSTALAR. Fix and try again" >&2 && exit 1
 instaladorderevmalo(){
@@ -33,8 +32,8 @@ $PROGRAM_NAME
    Version $PROGRAM_VERSION
 Te instala el revmalo en tu computadora
 other options:
-	instaladorderevmalo --version 		Shows instaladorderevmalo version.
-	instaladorderevmalo --help 			Shows this screen.
+	instaladorderevmalo --version			Shows instaladorderevmalo version.
+	instaladorderevmalo --help			Shows this screen.
 EOF
 	;;
 	*)
@@ -61,16 +60,20 @@ run(){
 		;;
 	esac
 }
+diecos(){
+	echo "E: $@" >&2
+	exit 1
+}
 instalar_revmalo(){
+			test -d "$LUGAR_A_INSTALAR" && echo "Instalaremos en $LUGAR_A_INSTALAR..." || diecos "Lugar $LUGAR_A_INSTALAR es invalido"
 			(
 				cd "$LUGAR_A_INSTALAR"
 				echo Descargando...
-				curl -O "$URL_DE_REVMALO" 2>/dev/null
+				test -x "$(command -v sudo)" && sudo curl -O "$URL_DE_REVMALO" 2>/dev/null || curl -O "$URL_DE_REVMALO" 2>/dev/null
 				echo Haciendo ejecutable...
-				chmod +x "$PROGRAM_COMMAND"
+				test -x "$(command -v sudo)" && sudo chmod +x "$PROGRAM_COMMAND" || chmod +x "$PROGRAM_COMMAND"
 				echo "Listo. Haz revmalo --version para verificar. Si no está, prueba con sudo"
 			)
 }
 test -x "$(command -v revmalo)" && echo Ya tienes revmalo chav@ revisate && exit 0
 test -x "$(command -v curl)" && instaladorderevmalo "$@" || echo Ni curl tienes >&2
-

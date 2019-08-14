@@ -63,7 +63,7 @@ run(){
 	esac
 }
 instalar_revmalo(){
-	case "$LUGAR_A_INSTALAR" in
+	case "$SHELL" in
 		*)
 			(
 				cd "$LUGAR_A_INSTALAR"

@@ -17,7 +17,7 @@ PROGRAM_NAME="instaladorderevmalo"
 PROGRAM_VERSION="0.2"
 URL_DE_REVMALO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/utilities/revmalo"
 PROGRAM_COMMAND="revmalo"
-declare -a PLACES=(~/../usr/bin /usr/bin /bin)
+declare -a PLACES=($HOME/../usr/bin /usr/bin /bin)
 LUGAR_A_INSTALAR=""
 for i in "${PLACES[@]}" ; do
   test -d "$i" && LUGAR_A_INSTALAR="$i" && break

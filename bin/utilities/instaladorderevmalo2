@@ -17,12 +17,10 @@ PROGRAM_NAME="instaladorderevmalo"
 PROGRAM_VERSION="0.2"
 URL_DE_REVMALO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/utilities/revmalo"
 PROGRAM_COMMAND="revmalo"
-declare -a PLACES=($HOME/../usr/bin /usr/bin /bin)
-LUGAR_A_INSTALAR=""
-for i in "${PLACES[@]}" ; do
-  test -d "$i" && LUGAR_A_INSTALAR="$i" && break
-done
-test ! -d "$LUGAR_A_INSTALAR" && echo "Invalid place to install $LUGAR_A_INSTALAR. Fix and try again" >&2 && exit 1
+test -d "$HOME/../usr/bin" && LUGAR_A_INSTALAR="$HOME/../usr/bin"
+test -d "/usr/bin" && LUGAR_A_INSTALAR="/usr/bin"
+test -d "/bin" && LUGAR_A_INSTALAR="/bin"
+test -z "$LUGAR_A_INSTALAR" && echo "Invalid place to install $LUGAR_A_INSTALAR. Fix and try again" >&2 && exit 1
 instaladorderevmalo(){
 	case "$1" in
 		--version) xecho "$PROGRAM_VERSION"; ;;
@@ -77,3 +75,4 @@ instalar_revmalo(){
 }
 test -x "$(command -v revmalo)" && echo Ya tienes revmalo chav@ revisate && exit 0
 test -x "$(command -v curl)" && instaladorderevmalo "$@" || echo Ni curl tienes >&2
+

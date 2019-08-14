@@ -18,8 +18,8 @@ PROGRAM_VERSION="0.2"
 URL_DE_REVMALO="https://raw.githubusercontent.com/africanmx/sensebins/dev/bin/utilities/revmalo"
 PROGRAM_COMMAND="revmalo"
 test -d "$HOME/../usr/bin" && LUGAR_A_INSTALAR="$HOME/../usr/bin"
-test -d "/usr/bin" && LUGAR_A_INSTALAR="/usr/bin"
-test -d "/bin" && LUGAR_A_INSTALAR="/bin"
+test -z "$LUGAR_A_INSTALAR" && test -d "/usr/bin" && LUGAR_A_INSTALAR="/usr/bin"
+test -z "$LUGAR_A_INSTALAR" && test -d "/bin" && LUGAR_A_INSTALAR="/bin"
 test -z "$LUGAR_A_INSTALAR" && echo "Invalid place to install $LUGAR_A_INSTALAR. Fix and try again" >&2 && exit 1
 instaladorderevmalo(){
 	case "$1" in

@@ -64,16 +64,6 @@ run(){
 }
 instalar_revmalo(){
 	case "$SHELL" in
-		*)
-			(
-				cd "$LUGAR_A_INSTALAR"
-				echo "Esta instalación requiere privilegios elevados..."
-				sudo curl -O "$URL_DE_REVMALO"
-				echo "Haciendo ejecutable..."
-				sudo chmod +x "$PROGRAM_COMMAND"
-				echo "Done, supuestamente. Haz revmalo --version para ver"
-			)
-		;;
 		*termux*)
 			(
 				cd "$LUGAR_A_INSTALAR"
@@ -81,6 +71,16 @@ instalar_revmalo(){
 				curl -O "$URL_DE_REVMALO" 2>/dev/null
 				echo Haciendo ejecutable...
 				chmod +x "$PROGRAM_COMMAND"
+				echo "Done, supuestamente. Haz revmalo --version para ver"
+			)
+		;;
+		*)
+			(
+				cd "$LUGAR_A_INSTALAR"
+				echo "Esta instalación requiere privilegios elevados..."
+				sudo curl -O "$URL_DE_REVMALO"
+				echo "Haciendo ejecutable..."
+				sudo chmod +x "$PROGRAM_COMMAND"
 				echo "Done, supuestamente. Haz revmalo --version para ver"
 			)
 		;;

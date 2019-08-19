@@ -1,0 +1,106 @@
+#!/bin/bash
+##
+## Copyright 2019 Luis_Pulido_Diaz
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),      ##
+## to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,      ##
+## and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:              ##
+##                                                                                                                                                         ##
+## The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.                          ##
+##                                                                                                                                                         ##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     ##
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      ##
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS    ##
+## IN THE SOFTWARE.
+##
+PROGRAM_NAME="fibonacci"
+PROGRAM_VERSION="0.2"
+### # changeset
+### # 0.1-0.2 added colors
+## Replace the > in the CONSOLE_THINGY
+## with your own string like ~$ or ~#
+## or whatever need. Leave a space for
+## better esthetics in the console.
+CONSOLE_THINGY="> "
+MAXN=42
+MAX_ALLOWED=77
+fibonacci(){
+	case "$1" in
+		--version) echo "$PROGRAM_VERSION"; ;;
+		--help)
+			cat <<EOF
+
+F i b  o   n     a        c             c                     i                                  #
+
+   Version $PROGRAM_VERSION
+
+usage:
+	fibonacci			Prints fibonacci sum up to $MAXN
+	fibonacci --verbose		Prints the fibonacci series from 1 to $MAXN
+	fibonacci x			Prints fibonacci sum up to x
+	fibonacci x --verbose		Prints the fibonacci series from 1 to x
+	fibonacci --version 		Shows fibonacci version.
+	fibonacci --help 			Shows this screen.
+EOF
+	;;
+	--console)
+		while [[ true ]] ; do
+			read -p "$PROGRAM_NAME$CONSOLE_THINGY"
+			case "$REPLY" in
+				q|quit|exit|sal|salir)
+					echo "Bye"
+					exit 0
+				;;
+				clear|cls)
+					clear
+				;;
+				*)
+					run "$REPLY"
+				;;
+			esac
+		done
+	;;
+	--verbose)
+		run "$MAXN" --verbose
+	;;
+	*)
+		run "$@"
+	;;
+	esac
+}
+run(){
+	if [[ -n "$1" ]] ; then
+		if [[ "$1" -gt "$MAX_ALLOWED" ]] ; then
+			echo "Error: Max allowed is $MAX_ALLOWED" >&2
+			exit 1
+		fi
+		maxn="$1"
+	else
+		maxn="$MAXN"
+	fi
+	if [[ -n "$2" && "$2" == "--verbose" ]] ; then
+		verbose=1
+	fi
+	declare -a arr=(1 1)
+	if [[ -n "$verbose" ]] ; then
+		echo 1
+		echo 1
+	fi
+	for i in $(seq 1 $(( $maxn - 2 ))) ; do
+		j="$(( $i - 1 ))"
+		x="$(( ${arr[$i]} ))"
+		y="$(( ${arr[$j]} ))"
+		res="$(( $x + $y ))"
+		if [ -n "$verbose" ] ; then
+			echo "$res"
+		fi
+		arr+=($res)
+	done
+	if [ -z "$verbose" ] ; then
+		xecho "$res"
+	fi
+}
+xecho(){
+	test -x "$(command -v lolcat)" && echo "$@" | lolcat || echo "$@"
+}
+fibonacci "$@"

@@ -72,7 +72,16 @@ comprueba_xolocert(){
 	echo "Xolocert LKSOID: $(xolocert --lksoid)"
 }
 instalar_xolocert(){
-	test -z "$(which less)" && apt update && apt install -y less
+        case "$SHELL" in
+           *termux*)
+              test -z "$(which less)" && apt update && apt install -y less
+              test -z "$(which uuid)" && apt update && apt install -y ossp-uuid
+           ;;
+           *)
+              test -z "$(which less)" && apt update && apt install -y less
+              test -z "$(which uuid)" && apt update && apt install -y uuid
+           ;;
+        esac
 	(
 		cd "$LUGAR_A_INSTALAR"
 		echo Descargando...
